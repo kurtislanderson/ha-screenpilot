@@ -1,12 +1,12 @@
 # ScreenPilot Home Assistant Integration
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
-[![GitHub Release](https://img.shields.io/github/release/kurtislanderson/screenpilot-homeassistant.svg)](https://github.com/kurtislanderson/screenpilot-homeassistant/releases)
-[![License](https://img.shields.io/github/license/kurtislanderson/screenpilot-homeassistant.svg)](LICENSE)
+[![GitHub Release](https://img.shields.io/github/release/kurtislanderson/ha-screenpilot.svg)](https://github.com/kurtislanderson/ha-screenpilot/releases)
+[![License](https://img.shields.io/github/license/kurtislanderson/ha-screenpilot.svg)](LICENSE)
 
 Complete Home Assistant integration for [ScreenPilot](https://github.com/kurtislanderson/ScreenPilot) kiosk displays with support for multiple devices, full API coverage, and easy setup.
 
-## 🚀 Installation
+## Installation
 
 ### HACS (Recommended)
 
@@ -14,7 +14,7 @@ Complete Home Assistant integration for [ScreenPilot](https://github.com/kurtisl
    - Open HACS in Home Assistant
    - Go to "Integrations" section
    - Click menu (3 dots) → "Custom repositories"
-   - Add `https://github.com/kurtislanderson/screenpilot-homeassistant`
+   - Add `https://github.com/kurtislanderson/ha-screenpilot`
    - Category: "Integration"
    - Click "Add"
 
@@ -41,16 +41,16 @@ Complete Home Assistant integration for [ScreenPilot](https://github.com/kurtisl
 
 ### Features
 
-✅ **Complete API Coverage** - All endpoints implemented  
-✅ **Multiple Device Support** - Add unlimited ScreenPilot instances  
-✅ **Auto Entity Creation** - 23 entities per device  
-✅ **Device Grouping** - All entities organized under one device  
-✅ **Service Definitions** - Native Home Assistant services  
-✅ **Efficient Updates** - Separate coordinators for different data types
+**Complete API Coverage** - All endpoints implemented  
+**Multiple Device Support** - Add unlimited ScreenPilot instances  
+**Auto Entity Creation** - 23 entities per device  
+**Device Grouping** - All entities organized under one device  
+**Service Definitions** - Native Home Assistant services  
+**Efficient Updates** - Separate coordinators for different data types
 
 See [custom_components/screenpilot/README.md](custom_components/screenpilot/README.md) for detailed documentation.
 
-## 📦 What You Get Per Device
+## What You Get Per Device
 
 - **11 Sensors**: CPU, Memory, Disk, URL, Browser Status, etc.
 - **4 Controls**: TV Switch, URL Input, Session Mode, CEC Commands
@@ -58,7 +58,7 @@ See [custom_components/screenpilot/README.md](custom_components/screenpilot/READ
 - **1 Camera**: Live screenshot
 - **7 Services**: Full API control
 
-## 🔧 Manual Configuration (Alternative)
+## Manual Configuration (Alternative)
 
 For manual YAML configuration, see the examples in the `examples/` directory:
 - `configuration_manual.yaml` - Single device setup
@@ -66,7 +66,7 @@ For manual YAML configuration, see the examples in the `examples/` directory:
 - `automations.yaml` - Automation examples
 - `lovelace-card.yaml` - Dashboard examples
 
-## 📋 Prerequisites
+## Prerequisites
 
 1. **ScreenPilot running** and accessible from Home Assistant
 2. **API token** from ScreenPilot (default: `dev-token-12345`)
@@ -89,7 +89,7 @@ cd home_assistant/scripts
 ./test_api.sh 192.168.1.100:8000 dev-token-12345   # Development
 ```
 
-## 🎯 Multiple Device Support
+## Multiple Device Support
 
 The custom integration fully supports multiple ScreenPilot instances:
 
@@ -113,16 +113,16 @@ Entities created:
   ... (23 total)
 ```
 
-## 📊 API Endpoints Coverage
+## API Endpoints Coverage
 
-### System Control ✅
+### System Control
 - `/api/health/` - Connection test
 - `/api/system/info/` - System information
 - `/api/system/reboot/` - System reboot
 - `/api/system/logs/` - System logs
 - `/api/system/service/<service>/<action>/` - Service control
 
-### Kiosk/Browser Control ✅
+### Kiosk/Browser Control
 - `/api/kiosk/url/` - Get/Set current URL
 - `/api/kiosk/startup_url/` - Get/Set startup URL
 - `/api/kiosk/reload/` - Restart browser
@@ -133,15 +133,15 @@ Entities created:
 - `/api/kiosk/clear_data/` - Clear browser data
 - `/api/kiosk/session_mode/` - Get/Set session mode
 
-### CEC/TV Control ✅
+### CEC/TV Control
 - `/api/cec/status/` - TV status and presence
 - `/api/cec/commands/` - List available commands
 - `/api/cec/command/<command>/` - Send CEC commands
 
-### Service Status ✅
+### Service Status
 - `/api/status/service_status/` - All service statuses
 
-## 🏗️ Example Configuration (Manual)
+## Example Configuration (Manual)
 
 For manual YAML configuration, here's a basic example:
 
@@ -433,7 +433,7 @@ automation:
           url: "http://YOUR_HA_IP:8123/lovelace/dashboard"
 ```
 
-## 📱 Dashboard Examples
+## Dashboard Examples
 
 Create a custom card for controlling ScreenPilot:
 
@@ -497,7 +497,7 @@ cards:
         name: "Uptime"
 ```
 
-## 🔌 Services Available
+## Services Available
 
 The custom integration provides these services:
 
@@ -570,7 +570,7 @@ script:
 - **API token mismatch**: Check `/etc/screenpilot/screenpilot.conf` on Pi
 - **Network isolation**: Ensure HA can reach ScreenPilot's network
 
-## 📚 Directory Structure
+## Directory Structure
 
 ```
 home_assistant/
@@ -585,7 +585,7 @@ home_assistant/
 └── README.md                      # This file
 ```
 
-## 🚀 Next Steps
+## Next Steps
 
 1. **Install the custom integration** using the steps above
 2. **Add your ScreenPilot devices** through the UI
@@ -593,7 +593,7 @@ home_assistant/
 4. **Create dashboards** using `examples/lovelace-card.yaml` as a template
 5. **Test the API** with `scripts/test_api.sh`
 
-## 💡 Advanced Use Cases
+## Advanced Use Cases
 
 - **Multi-room displays**: Control all kiosks from one dashboard
 - **Scheduled content**: Rotate URLs based on time/events
@@ -601,13 +601,13 @@ home_assistant/
 - **Alert displays**: Show critical information during emergencies
 - **Energy saving**: Power off displays during inactive hours
 
-## 🆘 Support
+## Support
 
 - **ScreenPilot Issues**: [Main ScreenPilot repository](https://github.com/kurtislanderson/ScreenPilot)
-- **Integration Issues**: [Create an issue here](https://github.com/kurtislanderson/screenpilot-homeassistant/issues)
+- **Integration Issues**: [Create an issue here](https://github.com/kurtislanderson/ha-screenpilot/issues)
 - **Home Assistant Community**: [Community Forum](https://community.home-assistant.io/)
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please:
 
@@ -616,11 +616,11 @@ Contributions are welcome! Please:
 3. Make your changes
 4. Submit a pull request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Thanks to the Home Assistant community
 - Built for use with [ScreenPilot](https://github.com/kurtislanderson/ScreenPilot)

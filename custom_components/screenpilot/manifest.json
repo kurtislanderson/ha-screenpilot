@@ -4,11 +4,11 @@
   "codeowners": ["@kurtislanderson"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/kurtislanderson/screenpilot-homeassistant",
+  "documentation": "https://github.com/kurtislanderson/ha-screenpilot",
   "homeassistant": "2023.1.0",
   "integration_type": "device",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/kurtislanderson/screenpilot-homeassistant/issues",
+  "issue_tracker": "https://github.com/kurtislanderson/ha-screenpilot/issues",
   "requirements": ["aiohttp>=3.8.0"],
   "version": "1.0.0"
 }

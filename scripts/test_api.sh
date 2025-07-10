@@ -42,9 +42,9 @@ test_endpoint() {
     RESPONSE=$(eval $CMD)
     
     if [ "$RESPONSE" = "200" ] || [ "$RESPONSE" = "201" ]; then
-        echo -e "${GREEN}✓ PASS${NC} (HTTP $RESPONSE)"
+        echo -e "${GREEN}PASS${NC} (HTTP $RESPONSE)"
     else
-        echo -e "${RED}✗ FAIL${NC} (HTTP $RESPONSE)"
+        echo -e "${RED}FAIL${NC} (HTTP $RESPONSE)"
     fi
 }
 
