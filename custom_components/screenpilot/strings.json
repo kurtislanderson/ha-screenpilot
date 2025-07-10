@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to ScreenPilot",
+        "description": "Set up a ScreenPilot device to control from Home Assistant.",
+        "data": {
+          "host": "Host",
+          "token": "API Token",
+          "name": "Name",
+          "use_https": "Use HTTPS"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to ScreenPilot",
+      "unknown": "Unexpected error occurred"
+    },
+    "abort": {
+      "already_configured": "This ScreenPilot device is already configured"
+    }
+  }
+}

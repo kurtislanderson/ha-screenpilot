@@ -1,0 +1,119 @@
+# Service definitions for ScreenPilot integration
+
+set_url:
+  name: Set URL
+  description: Navigate to a specific URL on the ScreenPilot display
+  target:
+    entity:
+      integration: screenpilot
+      domain: text
+  fields:
+    url:
+      name: URL
+      description: The URL to navigate to
+      required: true
+      example: "https://example.com"
+      selector:
+        text:
+
+reload_page:
+  name: Reload Page
+  description: Reload the current page on the ScreenPilot display
+  target:
+    entity:
+      integration: screenpilot
+      domain: button
+
+restart_browser:
+  name: Restart Browser
+  description: Restart the browser on the ScreenPilot display
+  target:
+    entity:
+      integration: screenpilot
+      domain: button
+
+clear_browser_data:
+  name: Clear Browser Data
+  description: Clear all browser data (cookies, cache, etc.)
+  target:
+    entity:
+      integration: screenpilot
+      domain: button
+
+set_session_mode:
+  name: Set Session Mode
+  description: Set the browser session mode
+  target:
+    entity:
+      integration: screenpilot
+      domain: select
+  fields:
+    mode:
+      name: Mode
+      description: The session mode to set
+      required: true
+      selector:
+        select:
+          options:
+            - normal
+            - persistent
+
+send_cec_command:
+  name: Send CEC Command
+  description: Send a CEC command to the connected TV
+  target:
+    entity:
+      integration: screenpilot
+      domain: select
+  fields:
+    command:
+      name: Command
+      description: The CEC command to send
+      required: true
+      selector:
+        select:
+          options:
+            - power_on
+            - power_off
+            - power_toggle
+            - volume_up
+            - volume_down
+            - mute
+            - input_hdmi1
+            - input_hdmi2
+            - input_hdmi3
+            - input_hdmi4
+
+control_service:
+  name: Control Service
+  description: Control a system service on the ScreenPilot device
+  target:
+    device:
+      integration: screenpilot
+  fields:
+    service_name:
+      name: Service Name
+      description: The name of the service to control
+      required: true
+      example: "screenpilot-kiosk"
+      selector:
+        text:
+    action:
+      name: Action
+      description: The action to perform
+      required: true
+      selector:
+        select:
+          options:
+            - start
+            - stop
+            - restart
+            - status
+
+reboot_system:
+  name: Reboot System
+  description: Reboot the ScreenPilot device
+  target:
+    entity:
+      integration: screenpilot
+      domain: button

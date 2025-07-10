@@ -1,0 +1,85 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to ScreenPilot",
+        "description": "Set up a ScreenPilot device to control from Home Assistant.",
+        "data": {
+          "host": "Host",
+          "token": "API Token",
+          "name": "Name",
+          "use_https": "Use HTTPS"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to ScreenPilot",
+      "unknown": "Unexpected error occurred"
+    },
+    "abort": {
+      "already_configured": "This ScreenPilot device is already configured"
+    }
+  },
+  "services": {
+    "set_url": {
+      "name": "Set URL",
+      "description": "Navigate to a specific URL on the ScreenPilot display",
+      "fields": {
+        "url": {
+          "name": "URL",
+          "description": "The URL to navigate to"
+        }
+      }
+    },
+    "reload_page": {
+      "name": "Reload Page",
+      "description": "Reload the current page on the ScreenPilot display"
+    },
+    "restart_browser": {
+      "name": "Restart Browser",
+      "description": "Restart the browser on the ScreenPilot display"
+    },
+    "clear_browser_data": {
+      "name": "Clear Browser Data",
+      "description": "Clear all browser data (cookies, cache, etc.)"
+    },
+    "set_session_mode": {
+      "name": "Set Session Mode",
+      "description": "Set the browser session mode",
+      "fields": {
+        "mode": {
+          "name": "Mode",
+          "description": "The session mode to set"
+        }
+      }
+    },
+    "send_cec_command": {
+      "name": "Send CEC Command",
+      "description": "Send a CEC command to the connected TV",
+      "fields": {
+        "command": {
+          "name": "Command",
+          "description": "The CEC command to send"
+        }
+      }
+    },
+    "control_service": {
+      "name": "Control Service",
+      "description": "Control a system service on the ScreenPilot device",
+      "fields": {
+        "service_name": {
+          "name": "Service Name",
+          "description": "The name of the service to control"
+        },
+        "action": {
+          "name": "Action",
+          "description": "The action to perform"
+        }
+      }
+    },
+    "reboot_system": {
+      "name": "Reboot System",
+      "description": "Reboot the ScreenPilot device"
+    }
+  }
+}
