@@ -2,84 +2,161 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connect to ScreenPilot",
-        "description": "Set up a ScreenPilot device to control from Home Assistant.",
+        "title": "Set up ScreenPilot",
+        "description": "Enter your ScreenPilot device details",
         "data": {
           "host": "Host",
           "token": "API Token",
-          "name": "Name",
+          "name": "Device Name",
           "use_https": "Use HTTPS"
         }
       }
     },
     "error": {
-      "cannot_connect": "Failed to connect to ScreenPilot",
-      "unknown": "Unexpected error occurred"
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error"
     },
     "abort": {
-      "already_configured": "This ScreenPilot device is already configured"
+      "already_configured": "Device is already configured"
     }
   },
-  "services": {
-    "set_url": {
-      "name": "Set URL",
-      "description": "Navigate to a specific URL on the ScreenPilot display",
-      "fields": {
-        "url": {
-          "name": "URL",
-          "description": "The URL to navigate to"
-        }
+  "entity": {
+    "binary_sensor": {
+      "system_healthy": {
+        "name": "System Problem"
+      },
+      "browser_connected": {
+        "name": "Browser Connected"
+      },
+      "browser_healthy": {
+        "name": "Browser Problem"
+      },
+      "tv_present": {
+        "name": "TV Present"
+      },
+      "tv_power": {
+        "name": "TV Power"
+      },
+      "services_healthy": {
+        "name": "Services Problem"
+      },
+      "kiosk_service": {
+        "name": "Kiosk Service"
+      },
+      "webconsole_service": {
+        "name": "Web Console Service"
       }
     },
-    "reload_page": {
-      "name": "Reload Page",
-      "description": "Reload the current page on the ScreenPilot display"
-    },
-    "restart_browser": {
-      "name": "Restart Browser",
-      "description": "Restart the browser on the ScreenPilot display"
-    },
-    "clear_browser_data": {
-      "name": "Clear Browser Data",
-      "description": "Clear all browser data (cookies, cache, etc.)"
-    },
-    "set_session_mode": {
-      "name": "Set Session Mode",
-      "description": "Set the browser session mode",
-      "fields": {
-        "mode": {
-          "name": "Mode",
-          "description": "The session mode to set"
-        }
+    "sensor": {
+      "cpu_percent": {
+        "name": "CPU"
+      },
+      "memory_percent": {
+        "name": "Memory"
+      },
+      "disk_percent": {
+        "name": "Disk"
+      },
+      "uptime": {
+        "name": "Uptime"
+      },
+      "ip_address": {
+        "name": "IP Address"
+      },
+      "current_url": {
+        "name": "Current URL"
+      },
+      "startup_url": {
+        "name": "Startup URL"
+      },
+      "zoom_level": {
+        "name": "Zoom Level"
+      },
+      "session_mode": {
+        "name": "Session Mode"
+      },
+      "health_status": {
+        "name": "Health Status"
+      },
+      "heartbeat_age": {
+        "name": "Heartbeat Age"
+      },
+      "chrome_version": {
+        "name": "Chrome Version"
+      },
+      "tv_power_status": {
+        "name": "TV Power Status"
       }
     },
-    "send_cec_command": {
-      "name": "Send CEC Command",
-      "description": "Send a CEC command to the connected TV",
-      "fields": {
-        "command": {
-          "name": "Command",
-          "description": "The CEC command to send"
-        }
+    "switch": {
+      "tv_power": {
+        "name": "TV Power"
+      },
+      "screen_power": {
+        "name": "Screen Power"
       }
     },
-    "control_service": {
-      "name": "Control Service",
-      "description": "Control a system service on the ScreenPilot device",
-      "fields": {
-        "service_name": {
-          "name": "Service Name",
-          "description": "The name of the service to control"
-        },
-        "action": {
-          "name": "Action",
-          "description": "The action to perform"
-        }
+    "button": {
+      "reload_page": {
+        "name": "Reload Page"
+      },
+      "hard_refresh": {
+        "name": "Hard Refresh"
+      },
+      "load_start_url": {
+        "name": "Load Start URL"
+      },
+      "restart_browser": {
+        "name": "Restart Browser"
+      },
+      "clear_cache": {
+        "name": "Clear Cache"
+      },
+      "clear_all_data": {
+        "name": "Clear All Data"
+      },
+      "reboot_device": {
+        "name": "Reboot Device"
+      },
+      "volume_up": {
+        "name": "Volume Up"
+      },
+      "volume_down": {
+        "name": "Volume Down"
+      },
+      "mute_toggle": {
+        "name": "Mute Toggle"
+      },
+      "power_toggle": {
+        "name": "Power Toggle"
       }
     },
-    "reboot_system": {
-      "name": "Reboot System",
-      "description": "Reboot the ScreenPilot device"
+    "number": {
+      "zoom_level": {
+        "name": "Zoom Level"
+      }
+    },
+    "select": {
+      "hdmi_input": {
+        "name": "HDMI Input"
+      },
+      "session_mode": {
+        "name": "Session Mode"
+      }
+    },
+    "text": {
+      "display_url": {
+        "name": "Display URL"
+      },
+      "startup_url": {
+        "name": "Startup URL"
+      }
+    },
+    "camera": {
+      "screenshot": {
+        "name": "Display"
+      }
     }
   }
 }

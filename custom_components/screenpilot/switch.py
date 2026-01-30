@@ -1,88 +1,97 @@
-"""Switch platform for ScreenPilot integration."""
+"""Switch platform for ScreenPilot."""
 from __future__ import annotations
 
-import logging
+from dataclasses import dataclass
 from typing import Any
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
+
+from .const import DOMAIN
+from .entity import ScreenPilotEntity
+
+
+@dataclass(frozen=True, kw_only=True)
+class ScreenPilotSwitchDescription(SwitchEntityDescription):
+    """Describes a ScreenPilot switch."""
+
+    on_command: str
+    off_command: str
+
+
+SWITCHES: tuple[ScreenPilotSwitchDescription, ...] = (
+    ScreenPilotSwitchDescription(
+        key="tv_power",
+        translation_key="tv_power",
+        icon="mdi:television",
+        on_command="power_on",
+        off_command="power_off",
+    ),
+    ScreenPilotSwitchDescription(
+        key="screen_power",
+        translation_key="screen_power",
+        icon="mdi:monitor",
+        on_command="active_source",
+        off_command="inactive_source",
+    ),
 )
-
-from .const import DOMAIN, ICON_TV
-
-_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up ScreenPilot switch platform."""
-    data = hass.data[DOMAIN][config_entry.entry_id]
+    """Set up ScreenPilot switches."""
+    data = hass.data[DOMAIN][entry.entry_id]
+    coordinator = data["coordinator"]
     api = data["api"]
-    coordinator = data["coordinators"]["cec"]
-    name = data["name"]
-    
-    async_add_entities([
-        ScreenPilotTVSwitch(
-            coordinator,
-            api,
-            name,
-            config_entry.entry_id,
-        )
-    ])
+
+    async_add_entities(
+        ScreenPilotSwitch(coordinator, api, entry.entry_id, description)
+        for description in SWITCHES
+    )
 
 
-class ScreenPilotTVSwitch(CoordinatorEntity, SwitchEntity):
-    """Representation of a ScreenPilot TV power switch."""
-    
+class ScreenPilotSwitch(ScreenPilotEntity, SwitchEntity):
+    """Switch for ScreenPilot."""
+
+    entity_description: ScreenPilotSwitchDescription
+
     def __init__(
         self,
-        coordinator: DataUpdateCoordinator,
+        coordinator,
         api,
-        name: str,
         entry_id: str,
+        description: ScreenPilotSwitchDescription,
     ) -> None:
         """Initialize the switch."""
-        super().__init__(coordinator)
+        super().__init__(coordinator, entry_id)
         self._api = api
-        self._attr_unique_id = f"{entry_id}_tv_power"
-        self._attr_name = f"{name} TV"
-        self._attr_icon = ICON_TV
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry_id)},
-            name=name,
-            manufacturer="ScreenPilot",
-            model="Kiosk Display",
-        )
-        
+        self.entity_description = description
+        self._attr_unique_id = f"{entry_id}_{description.key}"
+
     @property
     def is_on(self) -> bool:
-        """Return true if the TV is on."""
-        if self.coordinator.data is None:
-            return False
-        return self.coordinator.data.get("power_status", "unknown") == "on"
-        
+        """Return true if the switch is on."""
+        if self.entity_description.key == "tv_power":
+            return self.data.tv_power_on
+        # For screen power, we don't have a direct state, assume on if TV is on
+        return self.data.tv_power_on
+
     @property
     def available(self) -> bool:
-        """Return true if the TV is available."""
-        if self.coordinator.data is None:
-            return False
-        return self.coordinator.data.get("tv_present", False)
-        
+        """Return true if the switch is available."""
+        return super().available and self.data.tv_present
+
     async def async_turn_on(self, **kwargs: Any) -> None:
-        """Turn the TV on."""
-        await self._api.send_cec_command("power_on")
+        """Turn the switch on."""
+        await self._api.send_cec_command(self.entity_description.on_command)
         await self.coordinator.async_request_refresh()
-        
+
     async def async_turn_off(self, **kwargs: Any) -> None:
-        """Turn the TV off."""
-        await self._api.send_cec_command("power_off")
+        """Turn the switch off."""
+        await self._api.send_cec_command(self.entity_description.off_command)
         await self.coordinator.async_request_refresh()

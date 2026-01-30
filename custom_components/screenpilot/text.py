@@ -1,75 +1,83 @@
-"""Text platform for ScreenPilot integration."""
+"""Text platform for ScreenPilot."""
 from __future__ import annotations
 
-import logging
-
-from homeassistant.components.text import TextEntity, TextEntityDescription
+from homeassistant.components.text import TextEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
-)
 
-from .const import DOMAIN, ICON_URL
-
-_LOGGER = logging.getLogger(__name__)
+from .api import ScreenPilotAPI
+from .const import DOMAIN
+from .entity import ScreenPilotEntity
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up ScreenPilot text platform."""
-    data = hass.data[DOMAIN][config_entry.entry_id]
+    """Set up ScreenPilot text entities."""
+    data = hass.data[DOMAIN][entry.entry_id]
+    coordinator = data["coordinator"]
     api = data["api"]
-    coordinator = data["coordinators"]["kiosk"]
-    name = data["name"]
-    
+
     async_add_entities([
-        ScreenPilotURLText(
-            coordinator,
-            api,
-            name,
-            config_entry.entry_id,
-        )
+        ScreenPilotDisplayURL(coordinator, api, entry.entry_id),
+        ScreenPilotStartupURL(coordinator, api, entry.entry_id),
     ])
 
 
-class ScreenPilotURLText(CoordinatorEntity, TextEntity):
-    """Representation of a ScreenPilot URL text input."""
-    
+class ScreenPilotDisplayURL(ScreenPilotEntity, TextEntity):
+    """Text entity for display URL."""
+
+    _attr_translation_key = "display_url"
+    _attr_icon = "mdi:web"
+
     def __init__(
         self,
-        coordinator: DataUpdateCoordinator,
-        api,
-        name: str,
+        coordinator,
+        api: ScreenPilotAPI,
         entry_id: str,
     ) -> None:
         """Initialize the text entity."""
-        super().__init__(coordinator)
+        super().__init__(coordinator, entry_id)
         self._api = api
-        self._attr_unique_id = f"{entry_id}_url"
-        self._attr_name = f"{name} URL"
-        self._attr_icon = ICON_URL
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry_id)},
-            name=name,
-            manufacturer="ScreenPilot",
-            model="Kiosk Display",
-        )
-        
+        self._attr_unique_id = f"{entry_id}_display_url"
+
     @property
     def native_value(self) -> str | None:
         """Return the current URL."""
-        if self.coordinator.data is None:
-            return None
-        return self.coordinator.data.get("url", "")
-        
+        return self.data.current_url
+
     async def async_set_value(self, value: str) -> None:
         """Set the URL."""
         await self._api.set_kiosk_url(value)
+        await self.coordinator.async_request_refresh()
+
+
+class ScreenPilotStartupURL(ScreenPilotEntity, TextEntity):
+    """Text entity for startup URL."""
+
+    _attr_translation_key = "startup_url"
+    _attr_icon = "mdi:web-box"
+
+    def __init__(
+        self,
+        coordinator,
+        api: ScreenPilotAPI,
+        entry_id: str,
+    ) -> None:
+        """Initialize the text entity."""
+        super().__init__(coordinator, entry_id)
+        self._api = api
+        self._attr_unique_id = f"{entry_id}_startup_url"
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the startup URL."""
+        return self.data.startup_url
+
+    async def async_set_value(self, value: str) -> None:
+        """Set the startup URL."""
+        await self._api.set_startup_url(value)
         await self.coordinator.async_request_refresh()

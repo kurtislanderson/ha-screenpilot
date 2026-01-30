@@ -1,67 +1,56 @@
 """Constants for the ScreenPilot integration."""
-from datetime import timedelta
+from __future__ import annotations
 
-DOMAIN = "screenpilot"
+from typing import Final
+
+DOMAIN: Final = "screenpilot"
 
 # Configuration
-CONF_USE_HTTPS = "use_https"
-DEFAULT_NAME = "ScreenPilot"
-DEFAULT_SCAN_INTERVAL = timedelta(seconds=30)
+CONF_USE_HTTPS: Final = "use_https"
+DEFAULT_NAME: Final = "ScreenPilot"
+DEFAULT_PORT: Final = 80
+UPDATE_INTERVAL: Final = 30
 
-# Service Names
-SERVICE_SET_URL = "set_url"
-SERVICE_RELOAD_PAGE = "reload_page"
-SERVICE_RESTART_BROWSER = "restart_browser"
-SERVICE_CLEAR_DATA = "clear_browser_data"
-SERVICE_SET_SESSION_MODE = "set_session_mode"
-SERVICE_SEND_CEC_COMMAND = "send_cec_command"
-SERVICE_REBOOT = "reboot_system"
-SERVICE_CONTROL_SERVICE = "control_service"
+# Services
+SERVICE_LOAD_URL: Final = "load_url"
+SERVICE_EXECUTE_JS: Final = "execute_javascript"
+SERVICE_SEND_CEC: Final = "send_cec_command"
+SERVICE_CLEAR_DATA: Final = "clear_data"
+SERVICE_SET_ZOOM: Final = "set_zoom"
 
 # Attributes
-ATTR_URL = "url"
-ATTR_MODE = "mode"
-ATTR_COMMAND = "command"
-ATTR_SERVICE_NAME = "service_name"
-ATTR_ACTION = "action"
+ATTR_URL: Final = "url"
+ATTR_SCRIPT: Final = "script"
+ATTR_COMMAND: Final = "command"
+ATTR_DATA_TYPE: Final = "data_type"
+ATTR_LEVEL: Final = "level"
 
 # CEC Commands
-CEC_COMMANDS = [
+CEC_COMMANDS: Final = [
     "power_on",
     "power_off",
     "power_toggle",
     "volume_up",
     "volume_down",
-    "mute",
+    "mute_toggle",
+    "active_source",
+    "inactive_source",
     "input_hdmi1",
     "input_hdmi2",
     "input_hdmi3",
     "input_hdmi4",
 ]
 
+# HDMI Inputs
+HDMI_INPUTS: Final = {
+    "HDMI 1": "input_hdmi1",
+    "HDMI 2": "input_hdmi2",
+    "HDMI 3": "input_hdmi3",
+    "HDMI 4": "input_hdmi4",
+}
+
 # Session Modes
-SESSION_MODES = [
-    "normal",
-    "persistent",
-]
+SESSION_MODES: Final = ["persistent", "temporary", "custom"]
 
-# Service Actions
-SERVICE_ACTIONS = [
-    "start",
-    "stop",
-    "restart",
-    "status",
-]
-
-# Icons
-ICON_DISPLAY = "mdi:monitor"
-ICON_TV = "mdi:television"
-ICON_CPU = "mdi:cpu-64-bit"
-ICON_MEMORY = "mdi:memory"
-ICON_DISK = "mdi:harddisk"
-ICON_UPTIME = "mdi:timer-outline"
-ICON_BROWSER = "mdi:web"
-ICON_HEARTBEAT = "mdi:heart-pulse"
-ICON_SERVICE = "mdi:cog"
-ICON_URL = "mdi:link"
-ICON_SESSION = "mdi:lock"
+# Clear Data Types
+CLEAR_DATA_TYPES: Final = ["cache", "cookies", "localStorage", "all"]

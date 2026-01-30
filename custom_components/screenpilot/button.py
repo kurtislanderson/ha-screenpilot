@@ -1,116 +1,146 @@
-"""Button platform for ScreenPilot integration."""
+"""Button platform for ScreenPilot."""
 from __future__ import annotations
 
-import logging
-from typing import Any
+from collections.abc import Awaitable, Callable
+from dataclasses import dataclass
 
 from homeassistant.components.button import ButtonEntity, ButtonEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .api import ScreenPilotAPI
 from .const import DOMAIN
+from .entity import ScreenPilotEntity
 
-_LOGGER = logging.getLogger(__name__)
 
-BUTTON_DESCRIPTIONS = [
-    ButtonEntityDescription(
+@dataclass(frozen=True, kw_only=True)
+class ScreenPilotButtonDescription(ButtonEntityDescription):
+    """Describes a ScreenPilot button."""
+
+    press_fn: Callable[[ScreenPilotAPI], Awaitable[bool]]
+    refresh_after: bool = True
+
+
+BUTTONS: tuple[ScreenPilotButtonDescription, ...] = (
+    ScreenPilotButtonDescription(
         key="reload_page",
-        name="Reload Page",
+        translation_key="reload_page",
         icon="mdi:refresh",
+        press_fn=lambda api: api.reload_page(),
     ),
-    ButtonEntityDescription(
+    ScreenPilotButtonDescription(
+        key="hard_refresh",
+        translation_key="hard_refresh",
+        icon="mdi:refresh-circle",
+        press_fn=lambda api: api.hard_refresh(),
+    ),
+    ScreenPilotButtonDescription(
+        key="load_start_url",
+        translation_key="load_start_url",
+        icon="mdi:home",
+        press_fn=lambda api: api.reload_page(),  # Will navigate to startup URL
+    ),
+    ScreenPilotButtonDescription(
         key="restart_browser",
-        name="Restart Browser",
+        translation_key="restart_browser",
         icon="mdi:restart",
+        press_fn=lambda api: api.restart_browser(),
     ),
-    ButtonEntityDescription(
-        key="clear_browser_data",
-        name="Clear Browser Data",
+    ScreenPilotButtonDescription(
+        key="clear_cache",
+        translation_key="clear_cache",
         icon="mdi:delete-sweep",
+        press_fn=lambda api: api.clear_data("cache"),
+        refresh_after=False,
     ),
-    ButtonEntityDescription(
-        key="reboot_system",
-        name="Reboot System",
+    ScreenPilotButtonDescription(
+        key="clear_all_data",
+        translation_key="clear_all_data",
+        icon="mdi:delete-forever",
+        press_fn=lambda api: api.clear_data("all"),
+        refresh_after=False,
+    ),
+    ScreenPilotButtonDescription(
+        key="reboot_device",
+        translation_key="reboot_device",
         icon="mdi:restart-alert",
+        press_fn=lambda api: api.reboot_system(),
+        refresh_after=False,
     ),
-    # CEC buttons
-    ButtonEntityDescription(
+    ScreenPilotButtonDescription(
         key="volume_up",
-        name="Volume Up",
+        translation_key="volume_up",
         icon="mdi:volume-plus",
+        press_fn=lambda api: api.send_cec_command("volume_up"),
+        refresh_after=False,
     ),
-    ButtonEntityDescription(
+    ScreenPilotButtonDescription(
         key="volume_down",
-        name="Volume Down",
+        translation_key="volume_down",
         icon="mdi:volume-minus",
+        press_fn=lambda api: api.send_cec_command("volume_down"),
+        refresh_after=False,
     ),
-    ButtonEntityDescription(
-        key="mute",
-        name="Mute",
+    ScreenPilotButtonDescription(
+        key="mute_toggle",
+        translation_key="mute_toggle",
         icon="mdi:volume-mute",
+        press_fn=lambda api: api.send_cec_command("mute_toggle"),
+        refresh_after=False,
     ),
-]
+    ScreenPilotButtonDescription(
+        key="power_toggle",
+        translation_key="power_toggle",
+        icon="mdi:power",
+        press_fn=lambda api: api.send_cec_command("power_toggle"),
+    ),
+)
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up ScreenPilot button platform."""
-    data = hass.data[DOMAIN][config_entry.entry_id]
+    """Set up ScreenPilot buttons."""
+    data = hass.data[DOMAIN][entry.entry_id]
+    coordinator = data["coordinator"]
     api = data["api"]
-    name = data["name"]
-    
-    entities = []
-    for description in BUTTON_DESCRIPTIONS:
-        entities.append(
-            ScreenPilotButton(
-                api,
-                description,
-                name,
-                config_entry.entry_id,
-            )
-        )
-    
-    async_add_entities(entities)
+
+    async_add_entities(
+        ScreenPilotButton(coordinator, api, entry.entry_id, description)
+        for description in BUTTONS
+    )
 
 
-class ScreenPilotButton(ButtonEntity):
-    """Representation of a ScreenPilot button."""
-    
+class ScreenPilotButton(ScreenPilotEntity, ButtonEntity):
+    """Button for ScreenPilot."""
+
+    entity_description: ScreenPilotButtonDescription
+
     def __init__(
         self,
-        api,
-        description: ButtonEntityDescription,
-        name: str,
+        coordinator,
+        api: ScreenPilotAPI,
         entry_id: str,
+        description: ScreenPilotButtonDescription,
     ) -> None:
         """Initialize the button."""
+        super().__init__(coordinator, entry_id)
         self._api = api
         self.entity_description = description
         self._attr_unique_id = f"{entry_id}_{description.key}"
-        self._attr_name = f"{name} {description.name}"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry_id)},
-            name=name,
-            manufacturer="ScreenPilot",
-            model="Kiosk Display",
-        )
-        
+
     async def async_press(self) -> None:
         """Handle the button press."""
-        key = self.entity_description.key
-        
-        if key == "reload_page":
-            await self._api.reload_page()
-        elif key == "restart_browser":
-            await self._api.restart_browser()
-        elif key == "clear_browser_data":
-            await self._api.clear_browser_data()
-        elif key == "reboot_system":
-            await self._api.reboot_system()
-        elif key in ["volume_up", "volume_down", "mute"]:
-            await self._api.send_cec_command(key)
+        # Special handling for load_start_url
+        if self.entity_description.key == "load_start_url":
+            startup_url = self.data.startup_url
+            if startup_url:
+                await self._api.set_kiosk_url(startup_url)
+        else:
+            await self.entity_description.press_fn(self._api)
+
+        if self.entity_description.refresh_after:
+            await self.coordinator.async_request_refresh()

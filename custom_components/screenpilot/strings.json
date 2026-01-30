@@ -2,22 +2,161 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connect to ScreenPilot",
-        "description": "Set up a ScreenPilot device to control from Home Assistant.",
+        "title": "Set up ScreenPilot",
+        "description": "Enter your ScreenPilot device details",
         "data": {
           "host": "Host",
           "token": "API Token",
-          "name": "Name",
+          "name": "Device Name",
           "use_https": "Use HTTPS"
         }
       }
     },
     "error": {
-      "cannot_connect": "Failed to connect to ScreenPilot",
-      "unknown": "Unexpected error occurred"
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error"
     },
     "abort": {
-      "already_configured": "This ScreenPilot device is already configured"
+      "already_configured": "Device is already configured"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "system_healthy": {
+        "name": "System Problem"
+      },
+      "browser_connected": {
+        "name": "Browser Connected"
+      },
+      "browser_healthy": {
+        "name": "Browser Problem"
+      },
+      "tv_present": {
+        "name": "TV Present"
+      },
+      "tv_power": {
+        "name": "TV Power"
+      },
+      "services_healthy": {
+        "name": "Services Problem"
+      },
+      "kiosk_service": {
+        "name": "Kiosk Service"
+      },
+      "webconsole_service": {
+        "name": "Web Console Service"
+      }
+    },
+    "sensor": {
+      "cpu_percent": {
+        "name": "CPU"
+      },
+      "memory_percent": {
+        "name": "Memory"
+      },
+      "disk_percent": {
+        "name": "Disk"
+      },
+      "uptime": {
+        "name": "Uptime"
+      },
+      "ip_address": {
+        "name": "IP Address"
+      },
+      "current_url": {
+        "name": "Current URL"
+      },
+      "startup_url": {
+        "name": "Startup URL"
+      },
+      "zoom_level": {
+        "name": "Zoom Level"
+      },
+      "session_mode": {
+        "name": "Session Mode"
+      },
+      "health_status": {
+        "name": "Health Status"
+      },
+      "heartbeat_age": {
+        "name": "Heartbeat Age"
+      },
+      "chrome_version": {
+        "name": "Chrome Version"
+      },
+      "tv_power_status": {
+        "name": "TV Power Status"
+      }
+    },
+    "switch": {
+      "tv_power": {
+        "name": "TV Power"
+      },
+      "screen_power": {
+        "name": "Screen Power"
+      }
+    },
+    "button": {
+      "reload_page": {
+        "name": "Reload Page"
+      },
+      "hard_refresh": {
+        "name": "Hard Refresh"
+      },
+      "load_start_url": {
+        "name": "Load Start URL"
+      },
+      "restart_browser": {
+        "name": "Restart Browser"
+      },
+      "clear_cache": {
+        "name": "Clear Cache"
+      },
+      "clear_all_data": {
+        "name": "Clear All Data"
+      },
+      "reboot_device": {
+        "name": "Reboot Device"
+      },
+      "volume_up": {
+        "name": "Volume Up"
+      },
+      "volume_down": {
+        "name": "Volume Down"
+      },
+      "mute_toggle": {
+        "name": "Mute Toggle"
+      },
+      "power_toggle": {
+        "name": "Power Toggle"
+      }
+    },
+    "number": {
+      "zoom_level": {
+        "name": "Zoom Level"
+      }
+    },
+    "select": {
+      "hdmi_input": {
+        "name": "HDMI Input"
+      },
+      "session_mode": {
+        "name": "Session Mode"
+      }
+    },
+    "text": {
+      "display_url": {
+        "name": "Display URL"
+      },
+      "startup_url": {
+        "name": "Startup URL"
+      }
+    },
+    "camera": {
+      "screenshot": {
+        "name": "Display"
+      }
     }
   }
 }

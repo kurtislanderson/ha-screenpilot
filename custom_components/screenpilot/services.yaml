@@ -1,119 +1,80 @@
-# Service definitions for ScreenPilot integration
-
-set_url:
-  name: Set URL
-  description: Navigate to a specific URL on the ScreenPilot display
-  target:
-    entity:
-      integration: screenpilot
-      domain: text
+load_url:
+  name: Load URL
+  description: Navigate the kiosk browser to a URL
   fields:
     url:
       name: URL
-      description: The URL to navigate to
+      description: The URL to load
       required: true
       example: "https://example.com"
       selector:
         text:
 
-reload_page:
-  name: Reload Page
-  description: Reload the current page on the ScreenPilot display
-  target:
-    entity:
-      integration: screenpilot
-      domain: button
-
-restart_browser:
-  name: Restart Browser
-  description: Restart the browser on the ScreenPilot display
-  target:
-    entity:
-      integration: screenpilot
-      domain: button
-
-clear_browser_data:
-  name: Clear Browser Data
-  description: Clear all browser data (cookies, cache, etc.)
-  target:
-    entity:
-      integration: screenpilot
-      domain: button
-
-set_session_mode:
-  name: Set Session Mode
-  description: Set the browser session mode
-  target:
-    entity:
-      integration: screenpilot
-      domain: select
+execute_javascript:
+  name: Execute JavaScript
+  description: Run JavaScript code in the kiosk browser
   fields:
-    mode:
-      name: Mode
-      description: The session mode to set
+    script:
+      name: Script
+      description: JavaScript code to execute
       required: true
+      example: "document.body.style.zoom = '150%'"
       selector:
-        select:
-          options:
-            - normal
-            - persistent
+        text:
+          multiline: true
 
 send_cec_command:
   name: Send CEC Command
-  description: Send a CEC command to the connected TV
-  target:
-    entity:
-      integration: screenpilot
-      domain: select
+  description: Send a CEC command to the TV
   fields:
     command:
       name: Command
-      description: The CEC command to send
+      description: CEC command to send
       required: true
       selector:
         select:
           options:
-            - power_on
-            - power_off
-            - power_toggle
-            - volume_up
-            - volume_down
-            - mute
-            - input_hdmi1
-            - input_hdmi2
-            - input_hdmi3
-            - input_hdmi4
+            - "power_on"
+            - "power_off"
+            - "power_toggle"
+            - "volume_up"
+            - "volume_down"
+            - "mute_toggle"
+            - "active_source"
+            - "inactive_source"
+            - "input_hdmi1"
+            - "input_hdmi2"
+            - "input_hdmi3"
+            - "input_hdmi4"
 
-control_service:
-  name: Control Service
-  description: Control a system service on the ScreenPilot device
-  target:
-    device:
-      integration: screenpilot
+clear_data:
+  name: Clear Browser Data
+  description: Clear browser cache, cookies, or all data
   fields:
-    service_name:
-      name: Service Name
-      description: The name of the service to control
-      required: true
-      example: "screenpilot-kiosk"
-      selector:
-        text:
-    action:
-      name: Action
-      description: The action to perform
-      required: true
+    data_type:
+      name: Data Type
+      description: Type of data to clear
+      required: false
+      default: "all"
       selector:
         select:
           options:
-            - start
-            - stop
-            - restart
-            - status
+            - "cache"
+            - "cookies"
+            - "localStorage"
+            - "all"
 
-reboot_system:
-  name: Reboot System
-  description: Reboot the ScreenPilot device
-  target:
-    entity:
-      integration: screenpilot
-      domain: button
+set_zoom:
+  name: Set Zoom Level
+  description: Set the browser zoom level
+  fields:
+    level:
+      name: Zoom Level
+      description: Zoom percentage (25-500)
+      required: true
+      selector:
+        number:
+          min: 25
+          max: 500
+          step: 5
+          unit_of_measurement: "%"

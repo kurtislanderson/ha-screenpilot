@@ -1,8 +1,8 @@
-"""Sensor platform for ScreenPilot integration."""
+"""Sensor platform for ScreenPilot."""
 from __future__ import annotations
 
-from datetime import datetime
-import logging
+from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -12,266 +12,160 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, CONF_NAME
+from homeassistant.const import PERCENTAGE, UnitOfTime
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
-)
 
-from .const import (
-    DOMAIN,
-    ICON_CPU,
-    ICON_MEMORY,
-    ICON_DISK,
-    ICON_UPTIME,
-    ICON_BROWSER,
-    ICON_HEARTBEAT,
-    ICON_URL,
-    ICON_SERVICE,
-)
+from .const import DOMAIN
+from .coordinator import ScreenPilotData
+from .entity import ScreenPilotEntity
 
-_LOGGER = logging.getLogger(__name__)
 
-SENSOR_DESCRIPTIONS = [
+@dataclass(frozen=True, kw_only=True)
+class ScreenPilotSensorDescription(SensorEntityDescription):
+    """Describes a ScreenPilot sensor."""
+
+    value_fn: Callable[[ScreenPilotData], Any]
+
+
+def format_uptime(seconds: int) -> str:
+    """Format uptime to human readable string."""
+    days = seconds // 86400
+    hours = (seconds % 86400) // 3600
+    minutes = (seconds % 3600) // 60
+    if days > 0:
+        return f"{days}d {hours}h {minutes}m"
+    if hours > 0:
+        return f"{hours}h {minutes}m"
+    return f"{minutes}m"
+
+
+SENSORS: tuple[ScreenPilotSensorDescription, ...] = (
     # System sensors
-    SensorEntityDescription(
+    ScreenPilotSensorDescription(
         key="cpu_percent",
-        name="CPU",
+        translation_key="cpu_percent",
         native_unit_of_measurement=PERCENTAGE,
-        device_class=SensorDeviceClass.POWER_FACTOR,
         state_class=SensorStateClass.MEASUREMENT,
-        icon=ICON_CPU,
+        icon="mdi:cpu-64-bit",
+        value_fn=lambda data: round(data.cpu_percent, 1),
     ),
-    SensorEntityDescription(
+    ScreenPilotSensorDescription(
         key="memory_percent",
-        name="Memory",
+        translation_key="memory_percent",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
-        icon=ICON_MEMORY,
+        icon="mdi:memory",
+        value_fn=lambda data: round(data.memory_percent, 1),
     ),
-    SensorEntityDescription(
+    ScreenPilotSensorDescription(
         key="disk_percent",
-        name="Disk",
+        translation_key="disk_percent",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
-        icon=ICON_DISK,
+        icon="mdi:harddisk",
+        value_fn=lambda data: round(data.disk_percent, 1),
     ),
-    SensorEntityDescription(
+    ScreenPilotSensorDescription(
         key="uptime",
-        name="Uptime",
-        icon=ICON_UPTIME,
+        translation_key="uptime",
+        icon="mdi:timer-outline",
+        value_fn=lambda data: format_uptime(data.uptime),
     ),
-    SensorEntityDescription(
+    ScreenPilotSensorDescription(
         key="ip_address",
-        name="IP Address",
+        translation_key="ip_address",
         icon="mdi:ip-network",
+        value_fn=lambda data: data.ip_address,
     ),
     # Kiosk sensors
-    SensorEntityDescription(
+    ScreenPilotSensorDescription(
         key="current_url",
-        name="Current URL",
-        icon=ICON_URL,
+        translation_key="current_url",
+        icon="mdi:web",
+        value_fn=lambda data: data.current_url[:255] if data.current_url else "",
     ),
-    SensorEntityDescription(
-        key="browser_status",
-        name="Browser Status",
-        icon=ICON_BROWSER,
+    ScreenPilotSensorDescription(
+        key="startup_url",
+        translation_key="startup_url",
+        icon="mdi:web-box",
+        value_fn=lambda data: data.startup_url[:255] if data.startup_url else "",
     ),
-    SensorEntityDescription(
-        key="last_heartbeat",
-        name="Last Heartbeat",
-        icon=ICON_HEARTBEAT,
+    ScreenPilotSensorDescription(
+        key="zoom_level",
+        translation_key="zoom_level",
+        native_unit_of_measurement=PERCENTAGE,
+        icon="mdi:magnify",
+        value_fn=lambda data: data.zoom_level,
     ),
-    SensorEntityDescription(
+    ScreenPilotSensorDescription(
         key="session_mode",
-        name="Session Mode",
+        translation_key="session_mode",
         icon="mdi:lock",
+        value_fn=lambda data: data.session_mode,
     ),
-    # Service sensors
-    SensorEntityDescription(
-        key="service_health",
-        name="Service Health",
-        icon=ICON_SERVICE,
+    # Health sensors
+    ScreenPilotSensorDescription(
+        key="health_status",
+        translation_key="health_status",
+        icon="mdi:heart-pulse",
+        value_fn=lambda data: data.health_status,
+    ),
+    ScreenPilotSensorDescription(
+        key="heartbeat_age",
+        translation_key="heartbeat_age",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:heart-flash",
+        value_fn=lambda data: data.heartbeat_age,
+    ),
+    ScreenPilotSensorDescription(
+        key="chrome_version",
+        translation_key="chrome_version",
+        icon="mdi:google-chrome",
+        value_fn=lambda data: data.chrome_version,
     ),
     # CEC sensors
-    SensorEntityDescription(
+    ScreenPilotSensorDescription(
         key="tv_power_status",
-        name="TV Power",
+        translation_key="tv_power_status",
         icon="mdi:television",
+        value_fn=lambda data: "on" if data.tv_power_on else "off" if data.tv_present else "unavailable",
     ),
-]
+)
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up ScreenPilot sensor platform."""
-    data = hass.data[DOMAIN][config_entry.entry_id]
-    coordinators = data["coordinators"]
-    name = data["name"]
-    
-    entities = []
-    
-    # Add system sensors
-    for description in SENSOR_DESCRIPTIONS:
-        if description.key in ["cpu_percent", "memory_percent", "disk_percent", "uptime", "ip_address"]:
-            entities.append(
-                ScreenPilotSensor(
-                    coordinators["system"],
-                    description,
-                    name,
-                    config_entry.entry_id,
-                )
-            )
-        elif description.key in ["current_url", "browser_status", "last_heartbeat", "session_mode"]:
-            entities.append(
-                ScreenPilotSensor(
-                    coordinators["kiosk"],
-                    description,
-                    name,
-                    config_entry.entry_id,
-                )
-            )
-        elif description.key == "service_health":
-            entities.append(
-                ScreenPilotSensor(
-                    coordinators["service"],
-                    description,
-                    name,
-                    config_entry.entry_id,
-                )
-            )
-        elif description.key == "tv_power_status":
-            entities.append(
-                ScreenPilotSensor(
-                    coordinators["cec"],
-                    description,
-                    name,
-                    config_entry.entry_id,
-                )
-            )
-    
-    async_add_entities(entities)
+    """Set up ScreenPilot sensors."""
+    coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+
+    async_add_entities(
+        ScreenPilotSensor(coordinator, entry.entry_id, description)
+        for description in SENSORS
+    )
 
 
-class ScreenPilotSensor(CoordinatorEntity, SensorEntity):
-    """Representation of a ScreenPilot sensor."""
-    
+class ScreenPilotSensor(ScreenPilotEntity, SensorEntity):
+    """Sensor for ScreenPilot."""
+
+    entity_description: ScreenPilotSensorDescription
+
     def __init__(
         self,
-        coordinator: DataUpdateCoordinator,
-        description: SensorEntityDescription,
-        name: str,
+        coordinator,
         entry_id: str,
+        description: ScreenPilotSensorDescription,
     ) -> None:
         """Initialize the sensor."""
-        super().__init__(coordinator)
+        super().__init__(coordinator, entry_id)
         self.entity_description = description
         self._attr_unique_id = f"{entry_id}_{description.key}"
-        self._attr_name = f"{name} {description.name}"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry_id)},
-            name=name,
-            manufacturer="ScreenPilot",
-            model="Kiosk Display",
-        )
-        
+
     @property
     def native_value(self) -> Any:
         """Return the state of the sensor."""
-        if self.coordinator.data is None:
-            return None
-            
-        key = self.entity_description.key
-        
-        # Handle different data structures
-        if key == "cpu_percent":
-            return self.coordinator.data.get("cpu_percent", 0)
-        elif key == "memory_percent":
-            memory = self.coordinator.data.get("memory", {})
-            return memory.get("percent", 0) if memory else 0
-        elif key == "disk_percent":
-            disk = self.coordinator.data.get("disk", {})
-            return disk.get("percent", 0) if disk else 0
-        elif key == "uptime":
-            uptime_seconds = self.coordinator.data.get("uptime", 0)
-            return self._format_uptime(uptime_seconds)
-        elif key == "ip_address":
-            return self.coordinator.data.get("ip_address", "Unknown")
-        elif key == "current_url":
-            return self.coordinator.data.get("url", "Unknown")
-        elif key == "browser_status":
-            connected = self.coordinator.data.get("browser_connected", False)
-            return "Connected" if connected else "Disconnected"
-        elif key == "last_heartbeat":
-            heartbeat_age = self.coordinator.data.get("heartbeat_age", 999)
-            return self._format_heartbeat(heartbeat_age)
-        elif key == "session_mode":
-            return self.coordinator.data.get("session_mode", "normal")
-        elif key == "service_health":
-            all_healthy = self.coordinator.data.get("all_healthy", False)
-            return "Healthy" if all_healthy else "Unhealthy"
-        elif key == "tv_power_status":
-            return self.coordinator.data.get("power_status", "unknown")
-            
-        return None
-        
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """Return additional state attributes."""
-        if self.coordinator.data is None:
-            return {}
-            
-        key = self.entity_description.key
-        
-        # Add relevant attributes based on sensor type
-        if key == "service_health":
-            services = self.coordinator.data.get("services", [])
-            return {
-                "services": {
-                    service["name"]: {
-                        "healthy": service.get("healthy", False),
-                        "status": service.get("status", "unknown"),
-                    }
-                    for service in services
-                }
-            }
-        elif key == "tv_power_status":
-            return {
-                "tv_present": self.coordinator.data.get("tv_present", False),
-                "available_commands": self.coordinator.data.get("available_commands", []),
-            }
-        elif key == "browser_status":
-            return {
-                "last_heartbeat": self.coordinator.data.get("last_heartbeat", "Unknown"),
-                "heartbeat_age": self.coordinator.data.get("heartbeat_age", 999),
-            }
-            
-        return {}
-        
-    def _format_uptime(self, seconds: int) -> str:
-        """Format uptime in seconds to human readable string."""
-        days = seconds // 86400
-        hours = (seconds % 86400) // 3600
-        minutes = (seconds % 3600) // 60
-        
-        if days > 0:
-            return f"{days}d {hours}h {minutes}m"
-        elif hours > 0:
-            return f"{hours}h {minutes}m"
-        else:
-            return f"{minutes}m"
-            
-    def _format_heartbeat(self, seconds: int) -> str:
-        """Format heartbeat age in seconds to human readable string."""
-        if seconds < 60:
-            return f"{seconds}s ago"
-        elif seconds < 3600:
-            return f"{seconds // 60}m ago"
-        else:
-            return f"{seconds // 3600}h ago"
+        return self.entity_description.value_fn(self.data)
