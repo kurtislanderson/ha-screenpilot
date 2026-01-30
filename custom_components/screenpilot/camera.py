@@ -41,9 +41,10 @@ class ScreenPilotCamera(ScreenPilotEntity, Camera):
     ) -> None:
         """Initialize the camera."""
         super().__init__(coordinator, entry_id)
-        Camera.__init__(self)
         self._api = api
         self._attr_unique_id = f"{entry_id}_screenshot"
+        # Set frame interval (normally done by Camera.__init__)
+        self._attr_frame_interval = 0.5
 
     async def async_camera_image(
         self, width: int | None = None, height: int | None = None
