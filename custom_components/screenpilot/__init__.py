@@ -94,8 +94,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
+    global _SERVICES_REGISTERED  # noqa: PLW0603
+
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
         hass.data[DOMAIN].pop(entry.entry_id)
+
+        # If no more entries, unregister services
+        if not hass.data[DOMAIN] and _SERVICES_REGISTERED:
+            for service in [
+                SERVICE_LOAD_URL,
+                SERVICE_EXECUTE_JS,
+                SERVICE_SEND_CEC,
+                SERVICE_CLEAR_DATA,
+                SERVICE_SET_ZOOM,
+            ]:
+                hass.services.async_remove(DOMAIN, service)
+            _SERVICES_REGISTERED = False
 
     return unload_ok
 

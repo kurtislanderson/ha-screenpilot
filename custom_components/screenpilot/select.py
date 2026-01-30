@@ -5,9 +5,10 @@ from __future__ import annotations
 from homeassistant.components.select import SelectEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api import ScreenPilotAPI
+from .api import ScreenPilotAPI, ScreenPilotError
 from .const import DOMAIN, HDMI_INPUTS, SESSION_MODES
 from .entity import ScreenPilotEntity
 
@@ -63,9 +64,12 @@ class ScreenPilotHDMIInput(ScreenPilotEntity, SelectEntity):
         """Change the selected option."""
         command = HDMI_INPUTS.get(option)
         if command:
-            await self._api.send_cec_command(command)
-            self._current_option = option
-            await self.coordinator.async_request_refresh()
+            try:
+                await self._api.send_cec_command(command)
+                self._current_option = option
+                await self.coordinator.async_request_refresh()
+            except ScreenPilotError as err:
+                raise HomeAssistantError(f"Failed to select HDMI input: {err}") from err
 
 
 class ScreenPilotSessionMode(ScreenPilotEntity, SelectEntity):
@@ -93,5 +97,8 @@ class ScreenPilotSessionMode(ScreenPilotEntity, SelectEntity):
 
     async def async_select_option(self, option: str) -> None:
         """Change the session mode."""
-        await self._api.set_session_mode(option)
-        await self.coordinator.async_request_refresh()
+        try:
+            await self._api.set_session_mode(option)
+            await self.coordinator.async_request_refresh()
+        except ScreenPilotError as err:
+            raise HomeAssistantError(f"Failed to set session mode: {err}") from err

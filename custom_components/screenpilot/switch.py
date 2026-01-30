@@ -8,8 +8,10 @@ from typing import Any
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .api import ScreenPilotError
 from .const import DOMAIN
 from .entity import ScreenPilotEntity
 
@@ -89,10 +91,16 @@ class ScreenPilotSwitch(ScreenPilotEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the switch on."""
-        await self._api.send_cec_command(self.entity_description.on_command)
-        await self.coordinator.async_request_refresh()
+        try:
+            await self._api.send_cec_command(self.entity_description.on_command)
+            await self.coordinator.async_request_refresh()
+        except ScreenPilotError as err:
+            raise HomeAssistantError(f"Failed to turn on {self.name}: {err}") from err
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the switch off."""
-        await self._api.send_cec_command(self.entity_description.off_command)
-        await self.coordinator.async_request_refresh()
+        try:
+            await self._api.send_cec_command(self.entity_description.off_command)
+            await self.coordinator.async_request_refresh()
+        except ScreenPilotError as err:
+            raise HomeAssistantError(f"Failed to turn off {self.name}: {err}") from err

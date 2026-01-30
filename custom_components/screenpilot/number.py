@@ -6,9 +6,10 @@ from homeassistant.components.number import NumberEntity, NumberMode
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api import ScreenPilotAPI
+from .api import ScreenPilotAPI, ScreenPilotError
 from .const import DOMAIN
 from .entity import ScreenPilotEntity
 
@@ -55,5 +56,8 @@ class ScreenPilotZoom(ScreenPilotEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Set the zoom level."""
-        await self._api.set_zoom(int(value))
-        await self.coordinator.async_request_refresh()
+        try:
+            await self._api.set_zoom(int(value))
+            await self.coordinator.async_request_refresh()
+        except ScreenPilotError as err:
+            raise HomeAssistantError(f"Failed to set zoom level: {err}") from err

@@ -5,9 +5,10 @@ from __future__ import annotations
 from homeassistant.components.text import TextEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api import ScreenPilotAPI
+from .api import ScreenPilotAPI, ScreenPilotError
 from .const import DOMAIN
 from .entity import ScreenPilotEntity
 
@@ -54,8 +55,17 @@ class ScreenPilotDisplayURL(ScreenPilotEntity, TextEntity):
 
     async def async_set_value(self, value: str) -> None:
         """Set the URL."""
-        await self._api.set_kiosk_url(value)
-        await self.coordinator.async_request_refresh()
+        if not value or not value.strip():
+            raise ServiceValidationError("URL cannot be empty")
+        if not value.startswith(("http://", "https://", "file://")):
+            raise ServiceValidationError(
+                "URL must start with http://, https://, or file://"
+            )
+        try:
+            await self._api.set_kiosk_url(value)
+            await self.coordinator.async_request_refresh()
+        except ScreenPilotError as err:
+            raise HomeAssistantError(f"Failed to set display URL: {err}") from err
 
 
 class ScreenPilotStartupURL(ScreenPilotEntity, TextEntity):
@@ -82,5 +92,14 @@ class ScreenPilotStartupURL(ScreenPilotEntity, TextEntity):
 
     async def async_set_value(self, value: str) -> None:
         """Set the startup URL."""
-        await self._api.set_startup_url(value)
-        await self.coordinator.async_request_refresh()
+        if not value or not value.strip():
+            raise ServiceValidationError("URL cannot be empty")
+        if not value.startswith(("http://", "https://", "file://")):
+            raise ServiceValidationError(
+                "URL must start with http://, https://, or file://"
+            )
+        try:
+            await self._api.set_startup_url(value)
+            await self.coordinator.async_request_refresh()
+        except ScreenPilotError as err:
+            raise HomeAssistantError(f"Failed to set startup URL: {err}") from err

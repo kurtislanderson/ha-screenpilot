@@ -8,9 +8,10 @@ from dataclasses import dataclass
 from homeassistant.components.button import ButtonEntity, ButtonEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api import ScreenPilotAPI
+from .api import ScreenPilotAPI, ScreenPilotError
 from .const import DOMAIN
 from .entity import ScreenPilotEntity
 
@@ -135,13 +136,16 @@ class ScreenPilotButton(ScreenPilotEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         """Handle the button press."""
-        # Special handling for load_start_url
-        if self.entity_description.key == "load_start_url":
-            startup_url = self.data.startup_url
-            if startup_url:
-                await self._api.set_kiosk_url(startup_url)
-        else:
-            await self.entity_description.press_fn(self._api)
+        try:
+            # Special handling for load_start_url
+            if self.entity_description.key == "load_start_url":
+                startup_url = self.data.startup_url
+                if startup_url:
+                    await self._api.set_kiosk_url(startup_url)
+            else:
+                await self.entity_description.press_fn(self._api)
 
-        if self.entity_description.refresh_after:
-            await self.coordinator.async_request_refresh()
+            if self.entity_description.refresh_after:
+                await self.coordinator.async_request_refresh()
+        except ScreenPilotError as err:
+            raise HomeAssistantError(f"Failed to press {self.name}: {err}") from err
