@@ -1,4 +1,5 @@
 """Camera platform for ScreenPilot."""
+
 from __future__ import annotations
 
 import logging

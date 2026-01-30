@@ -1,4 +1,5 @@
 """API client for ScreenPilot."""
+
 from __future__ import annotations
 
 import asyncio
@@ -8,6 +9,7 @@ from typing import Any
 import aiohttp
 
 _LOGGER = logging.getLogger(__name__)
+
 
 class ScreenPilotError(Exception):
     """Base exception for ScreenPilot."""
@@ -205,9 +207,7 @@ class ScreenPilotAPI:
         url = self.get_screenshot_url()
         try:
             async with asyncio.timeout(10):
-                async with self._session.get(
-                    url, headers=self._headers
-                ) as response:
+                async with self._session.get(url, headers=self._headers) as response:
                     response.raise_for_status()
                     return await response.read()
         except Exception as err:

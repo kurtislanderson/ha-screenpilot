@@ -1,4 +1,5 @@
 """DataUpdateCoordinator for ScreenPilot."""
+
 from __future__ import annotations
 
 import asyncio
@@ -11,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import ScreenPilotAPI, ScreenPilotConnectionError, ScreenPilotAuthError
-from .const import DOMAIN, UPDATE_INTERVAL
+from .const import UPDATE_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -94,7 +95,9 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
                 return_exceptions=True,
             )
 
-            health, system, kiosk_url, kiosk_health, startup, zoom, cec, services = results
+            health, system, kiosk_url, kiosk_health, startup, zoom, cec, services = (
+                results
+            )
 
             # Handle exceptions gracefully
             def safe_get(data: Any, default: Any = None) -> Any:
@@ -130,8 +133,12 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
                 ip_address=system.get("ip_address", ""),
                 uptime=system.get("uptime", 0),
                 cpu_percent=system.get("cpu_percent", 0.0),
-                memory_percent=memory.get("percent", 0.0) if isinstance(memory, dict) else 0.0,
-                disk_percent=disk.get("percent", 0.0) if isinstance(disk, dict) else 0.0,
+                memory_percent=memory.get("percent", 0.0)
+                if isinstance(memory, dict)
+                else 0.0,
+                disk_percent=disk.get("percent", 0.0)
+                if isinstance(disk, dict)
+                else 0.0,
                 # Health
                 system_healthy=health.get("status") == "healthy",
                 health_status=health.get("status", "unknown"),
@@ -141,9 +148,15 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
                 chrome_version=kiosk_health.get("chrome_version", ""),
                 # Services
                 services_healthy=services.get("all_healthy", False),
-                kiosk_service_running=service_states.get("screenpilot-kiosk.service", False),
-                webconsole_service_running=service_states.get("screenpilot-webconsole.service", False),
-                cec_service_running=service_states.get("screenpilot-cec-daemon.service", False),
+                kiosk_service_running=service_states.get(
+                    "screenpilot-kiosk.service", False
+                ),
+                webconsole_service_running=service_states.get(
+                    "screenpilot-webconsole.service", False
+                ),
+                cec_service_running=service_states.get(
+                    "screenpilot-cec-daemon.service", False
+                ),
                 # Kiosk
                 current_url=kiosk_url.get("url", ""),
                 startup_url=startup.get("url", ""),

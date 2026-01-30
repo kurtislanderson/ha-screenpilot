@@ -1,4 +1,5 @@
 """Text platform for ScreenPilot."""
+
 from __future__ import annotations
 
 from homeassistant.components.text import TextEntity
@@ -21,10 +22,12 @@ async def async_setup_entry(
     coordinator = data["coordinator"]
     api = data["api"]
 
-    async_add_entities([
-        ScreenPilotDisplayURL(coordinator, api, entry.entry_id),
-        ScreenPilotStartupURL(coordinator, api, entry.entry_id),
-    ])
+    async_add_entities(
+        [
+            ScreenPilotDisplayURL(coordinator, api, entry.entry_id),
+            ScreenPilotStartupURL(coordinator, api, entry.entry_id),
+        ]
+    )
 
 
 class ScreenPilotDisplayURL(ScreenPilotEntity, TextEntity):

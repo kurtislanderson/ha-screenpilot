@@ -1,4 +1,5 @@
 """Select platform for ScreenPilot."""
+
 from __future__ import annotations
 
 from homeassistant.components.select import SelectEntity
@@ -21,10 +22,12 @@ async def async_setup_entry(
     coordinator = data["coordinator"]
     api = data["api"]
 
-    async_add_entities([
-        ScreenPilotHDMIInput(coordinator, api, entry.entry_id),
-        ScreenPilotSessionMode(coordinator, api, entry.entry_id),
-    ])
+    async_add_entities(
+        [
+            ScreenPilotHDMIInput(coordinator, api, entry.entry_id),
+            ScreenPilotSessionMode(coordinator, api, entry.entry_id),
+        ]
+    )
 
 
 class ScreenPilotHDMIInput(ScreenPilotEntity, SelectEntity):

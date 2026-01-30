@@ -1,4 +1,5 @@
 """Config flow for ScreenPilot integration."""
+
 from __future__ import annotations
 
 import logging
@@ -62,7 +63,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._abort_if_unique_id_configured()
 
                 # Use hostname from device if available
-                title = user_input.get(CONF_NAME) or system_info.get("hostname") or user_input[CONF_HOST]
+                title = (
+                    user_input.get(CONF_NAME)
+                    or system_info.get("hostname")
+                    or user_input[CONF_HOST]
+                )
 
                 return self.async_create_entry(
                     title=title,

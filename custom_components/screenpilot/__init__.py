@@ -1,4 +1,5 @@
 """The ScreenPilot integration."""
+
 from __future__ import annotations
 
 import logging
@@ -233,14 +234,22 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         DOMAIN,
         SERVICE_CLEAR_DATA,
         handle_clear_data,
-        schema=vol.Schema({vol.Optional(ATTR_DATA_TYPE, default="all"): vol.In(CLEAR_DATA_TYPES)}),
+        schema=vol.Schema(
+            {vol.Optional(ATTR_DATA_TYPE, default="all"): vol.In(CLEAR_DATA_TYPES)}
+        ),
     )
 
     hass.services.async_register(
         DOMAIN,
         SERVICE_SET_ZOOM,
         handle_set_zoom,
-        schema=vol.Schema({vol.Required(ATTR_LEVEL): vol.All(vol.Coerce(int), vol.Range(min=25, max=500))}),
+        schema=vol.Schema(
+            {
+                vol.Required(ATTR_LEVEL): vol.All(
+                    vol.Coerce(int), vol.Range(min=25, max=500)
+                )
+            }
+        ),
     )
 
     _SERVICES_REGISTERED = True
