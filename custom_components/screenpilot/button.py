@@ -25,6 +25,7 @@ class ScreenPilotButtonDescription(ButtonEntityDescription):
 
 
 BUTTONS: tuple[ScreenPilotButtonDescription, ...] = (
+    # Kiosk buttons
     ScreenPilotButtonDescription(
         key="reload_page",
         translation_key="reload_page",
@@ -63,12 +64,38 @@ BUTTONS: tuple[ScreenPilotButtonDescription, ...] = (
         press_fn=lambda api: api.clear_data("all"),
         refresh_after=False,
     ),
+    # System buttons
     ScreenPilotButtonDescription(
         key="reboot_device",
         translation_key="reboot_device",
         icon="mdi:restart-alert",
         press_fn=lambda api: api.reboot_system(),
         refresh_after=False,
+    ),
+    # CEC buttons
+    ScreenPilotButtonDescription(
+        key="power_on",
+        translation_key="power_on",
+        icon="mdi:power-on",
+        press_fn=lambda api: api.send_cec_command("power_on"),
+    ),
+    ScreenPilotButtonDescription(
+        key="power_off",
+        translation_key="power_off",
+        icon="mdi:power-off",
+        press_fn=lambda api: api.send_cec_command("power_off"),
+    ),
+    ScreenPilotButtonDescription(
+        key="make_active_source",
+        translation_key="make_active_source",
+        icon="mdi:video-input-hdmi",
+        press_fn=lambda api: api.send_cec_command("active_source"),
+    ),
+    ScreenPilotButtonDescription(
+        key="make_inactive_source",
+        translation_key="make_inactive_source",
+        icon="mdi:video-input-hdmi",
+        press_fn=lambda api: api.send_cec_command("inactive_source"),
     ),
     ScreenPilotButtonDescription(
         key="volume_up",
@@ -90,12 +117,6 @@ BUTTONS: tuple[ScreenPilotButtonDescription, ...] = (
         icon="mdi:volume-mute",
         press_fn=lambda api: api.send_cec_command("mute_toggle"),
         refresh_after=False,
-    ),
-    ScreenPilotButtonDescription(
-        key="power_toggle",
-        translation_key="power_toggle",
-        icon="mdi:power",
-        press_fn=lambda api: api.send_cec_command("power_toggle"),
     ),
 )
 

@@ -24,7 +24,12 @@ async def async_setup_entry(
     coordinator = data["coordinator"]
     api = data["api"]
 
-    async_add_entities([ScreenPilotZoom(coordinator, api, entry.entry_id)])
+    async_add_entities(
+        [
+            # Kiosk numbers
+            ScreenPilotZoom(coordinator, api, entry.entry_id),
+        ]
+    )
 
 
 class ScreenPilotZoom(ScreenPilotEntity, NumberEntity):

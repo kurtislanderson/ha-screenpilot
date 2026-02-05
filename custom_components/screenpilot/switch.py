@@ -25,19 +25,13 @@ class ScreenPilotSwitchDescription(SwitchEntityDescription):
 
 
 SWITCHES: tuple[ScreenPilotSwitchDescription, ...] = (
+    # CEC switches
     ScreenPilotSwitchDescription(
         key="tv_power",
         translation_key="tv_power",
         icon="mdi:television",
         on_command="power_on",
         off_command="power_off",
-    ),
-    ScreenPilotSwitchDescription(
-        key="screen_power",
-        translation_key="screen_power",
-        icon="mdi:monitor",
-        on_command="active_source",
-        off_command="inactive_source",
     ),
 )
 
@@ -79,9 +73,6 @@ class ScreenPilotSwitch(ScreenPilotEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return true if the switch is on."""
-        if self.entity_description.key == "tv_power":
-            return self.data.tv_power_on
-        # For screen power, we don't have a direct state, assume on if TV is on
         return self.data.tv_power_on
 
     @property

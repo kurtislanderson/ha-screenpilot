@@ -46,6 +46,9 @@
       },
       "webconsole_service": {
         "name": "Web Console Service"
+      },
+      "cec_service": {
+        "name": "CEC Service"
       }
     },
     "sensor": {
@@ -92,9 +95,6 @@
     "switch": {
       "tv_power": {
         "name": "TV Power"
-      },
-      "screen_power": {
-        "name": "Screen Power"
       }
     },
     "button": {
@@ -128,8 +128,17 @@
       "mute_toggle": {
         "name": "Mute Toggle"
       },
-      "power_toggle": {
-        "name": "Power Toggle"
+      "power_on": {
+        "name": "Power On"
+      },
+      "power_off": {
+        "name": "Power Off"
+      },
+      "make_active_source": {
+        "name": "Make Active Source"
+      },
+      "make_inactive_source": {
+        "name": "Make Inactive Source"
       }
     },
     "number": {

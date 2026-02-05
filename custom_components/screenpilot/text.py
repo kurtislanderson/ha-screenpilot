@@ -25,6 +25,7 @@ async def async_setup_entry(
 
     async_add_entities(
         [
+            # Kiosk text inputs
             ScreenPilotDisplayURL(coordinator, api, entry.entry_id),
             ScreenPilotStartupURL(coordinator, api, entry.entry_id),
         ]

@@ -25,8 +25,10 @@ async def async_setup_entry(
 
     async_add_entities(
         [
-            ScreenPilotHDMIInput(coordinator, api, entry.entry_id),
+            # Kiosk selects
             ScreenPilotSessionMode(coordinator, api, entry.entry_id),
+            # CEC selects
+            ScreenPilotHDMIInput(coordinator, api, entry.entry_id),
         ]
     )
 

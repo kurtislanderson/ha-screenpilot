@@ -27,6 +27,7 @@ class ScreenPilotBinarySensorDescription(BinarySensorEntityDescription):
 
 
 BINARY_SENSORS: tuple[ScreenPilotBinarySensorDescription, ...] = (
+    # Health sensors
     ScreenPilotBinarySensorDescription(
         key="system_healthy",
         translation_key="system_healthy",
@@ -45,18 +46,7 @@ BINARY_SENSORS: tuple[ScreenPilotBinarySensorDescription, ...] = (
         device_class=BinarySensorDeviceClass.PROBLEM,
         value_fn=lambda data: not data.browser_healthy,
     ),
-    ScreenPilotBinarySensorDescription(
-        key="tv_present",
-        translation_key="tv_present",
-        device_class=BinarySensorDeviceClass.PRESENCE,
-        value_fn=lambda data: data.tv_present,
-    ),
-    ScreenPilotBinarySensorDescription(
-        key="tv_power",
-        translation_key="tv_power",
-        device_class=BinarySensorDeviceClass.POWER,
-        value_fn=lambda data: data.tv_power_on,
-    ),
+    # Service sensors
     ScreenPilotBinarySensorDescription(
         key="services_healthy",
         translation_key="services_healthy",
@@ -74,6 +64,25 @@ BINARY_SENSORS: tuple[ScreenPilotBinarySensorDescription, ...] = (
         translation_key="webconsole_service",
         device_class=BinarySensorDeviceClass.RUNNING,
         value_fn=lambda data: data.webconsole_service_running,
+    ),
+    ScreenPilotBinarySensorDescription(
+        key="cec_service",
+        translation_key="cec_service",
+        device_class=BinarySensorDeviceClass.RUNNING,
+        value_fn=lambda data: data.cec_service_running,
+    ),
+    # CEC sensors
+    ScreenPilotBinarySensorDescription(
+        key="tv_present",
+        translation_key="tv_present",
+        device_class=BinarySensorDeviceClass.PRESENCE,
+        value_fn=lambda data: data.tv_present,
+    ),
+    ScreenPilotBinarySensorDescription(
+        key="tv_power",
+        translation_key="tv_power",
+        device_class=BinarySensorDeviceClass.POWER,
+        value_fn=lambda data: data.tv_power_on,
     ),
 )
 
