@@ -130,11 +130,9 @@ SENSORS: tuple[ScreenPilotSensorDescription, ...] = (
         key="tv_power_status",
         translation_key="tv_power_status",
         icon="mdi:television",
-        value_fn=lambda data: "on"
-        if data.tv_power_on
-        else "off"
-        if data.tv_present
-        else "unavailable",
+        value_fn=lambda data: (
+            "on" if data.tv_power_on else "off" if data.tv_present else "unavailable"
+        ),
     ),
 )
 

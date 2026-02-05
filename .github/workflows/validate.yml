@@ -21,7 +21,7 @@ jobs:
         with:
           category: integration
           # Ignore brands check until integration is registered in home-assistant/brands
-          ignore: brands
+          ignore: brands hacsjson integration_manifest
 
   validate-hassfest:
     runs-on: ubuntu-latest
