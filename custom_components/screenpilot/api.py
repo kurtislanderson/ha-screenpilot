@@ -189,9 +189,7 @@ class ScreenPilotAPI:
 
     async def execute_javascript(self, script: str) -> dict[str, Any]:
         """Execute JavaScript in browser."""
-        return await self._post(
-            "/api/kiosk/devtools/execute/", {"expression": script}
-        )
+        return await self._post("/api/kiosk/devtools/execute/", {"expression": script})
 
     async def get_devtools_version(self) -> dict[str, Any]:
         """Get Chrome DevTools version info."""

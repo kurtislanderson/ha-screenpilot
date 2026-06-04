@@ -233,7 +233,9 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
             schedule = reboot.get("schedule", {}) if isinstance(reboot, dict) else {}
 
             # Parse CEC command history (most recent entry first)
-            cec_logs = cec_history.get("logs", []) if isinstance(cec_history, dict) else []
+            cec_logs = (
+                cec_history.get("logs", []) if isinstance(cec_history, dict) else []
+            )
             last_cec = cec_logs[0] if cec_logs and isinstance(cec_logs[0], dict) else {}
 
             # Parse services. The /api/status/service_status/ endpoint returns a
