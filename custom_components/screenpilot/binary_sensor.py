@@ -71,6 +71,13 @@ BINARY_SENSORS: tuple[ScreenPilotBinarySensorDescription, ...] = (
         device_class=BinarySensorDeviceClass.RUNNING,
         value_fn=lambda data: data.cec_service_running,
     ),
+    # Network sensors
+    ScreenPilotBinarySensorDescription(
+        key="network_connected",
+        translation_key="network_connected",
+        device_class=BinarySensorDeviceClass.CONNECTIVITY,
+        value_fn=lambda data: data.ethernet_connected or data.wifi_connected,
+    ),
     # CEC sensors
     ScreenPilotBinarySensorDescription(
         key="tv_present",

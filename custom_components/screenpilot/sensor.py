@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from homeassistant.components.sensor import (
+    SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
     SensorStateClass,
@@ -26,6 +27,7 @@ class ScreenPilotSensorDescription(SensorEntityDescription):
     """Describes a ScreenPilot sensor."""
 
     value_fn: Callable[[ScreenPilotData], Any]
+    attr_fn: Callable[[ScreenPilotData], dict[str, Any]] | None = None
 
 
 def format_uptime(seconds: int) -> str:
@@ -125,6 +127,34 @@ SENSORS: tuple[ScreenPilotSensorDescription, ...] = (
         icon="mdi:google-chrome",
         value_fn=lambda data: data.chrome_version,
     ),
+    ScreenPilotSensorDescription(
+        key="last_heartbeat",
+        translation_key="last_heartbeat",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        icon="mdi:heart-flash",
+        value_fn=lambda data: data.last_heartbeat,
+    ),
+    # Network sensors
+    ScreenPilotSensorDescription(
+        key="services_active",
+        translation_key="services_active",
+        icon="mdi:cog-sync",
+        value_fn=lambda data: f"{data.services_active}/{data.services_total}",
+        attr_fn=lambda data: {
+            "active": data.services_active,
+            "total": data.services_total,
+            "failed": data.services_failed,
+            "failed_services": data.failed_services,
+        },
+    ),
+    # Display sensors
+    ScreenPilotSensorDescription(
+        key="display_resolution",
+        translation_key="display_resolution",
+        icon="mdi:monitor-screenshot",
+        value_fn=lambda data: data.display_resolution,
+        attr_fn=lambda data: {"refresh_rate": data.display_refresh_rate},
+    ),
     # CEC sensors
     ScreenPilotSensorDescription(
         key="tv_power_status",
@@ -133,6 +163,42 @@ SENSORS: tuple[ScreenPilotSensorDescription, ...] = (
         value_fn=lambda data: (
             "on" if data.tv_power_on else "off" if data.tv_present else "unavailable"
         ),
+    ),
+    ScreenPilotSensorDescription(
+        key="cec_detection_status",
+        translation_key="cec_detection_status",
+        icon="mdi:magnify-scan",
+        value_fn=lambda data: data.cec_detection_status,
+        attr_fn=lambda data: {"progress": data.cec_detection_progress},
+    ),
+    ScreenPilotSensorDescription(
+        key="last_cec_command",
+        translation_key="last_cec_command",
+        icon="mdi:remote-tv",
+        value_fn=lambda data: data.last_cec_command or "none",
+        attr_fn=lambda data: {
+            "success": data.last_cec_command_success,
+            "executed_at": data.last_cec_command_at,
+            "count": data.cec_command_count,
+        },
+    ),
+    # System sensors
+    ScreenPilotSensorDescription(
+        key="reboot_schedule",
+        translation_key="reboot_schedule",
+        icon="mdi:calendar-clock",
+        value_fn=lambda data: (
+            f"{data.reboot_frequency} {data.reboot_time}".strip()
+            if data.reboot_enabled
+            else "disabled"
+        ),
+        attr_fn=lambda data: {
+            "enabled": data.reboot_enabled,
+            "frequency": data.reboot_frequency,
+            "time": data.reboot_time,
+            "next_reboot": data.reboot_next,
+            "cron": data.reboot_cron,
+        },
     ),
 )
 
@@ -171,3 +237,10 @@ class ScreenPilotSensor(ScreenPilotEntity, SensorEntity):
     def native_value(self) -> Any:
         """Return the state of the sensor."""
         return self.entity_description.value_fn(self.data)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        """Return additional state attributes."""
+        if self.entity_description.attr_fn is None:
+            return None
+        return self.entity_description.attr_fn(self.data)

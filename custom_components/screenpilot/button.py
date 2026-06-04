@@ -74,6 +74,12 @@ BUTTONS: tuple[ScreenPilotButtonDescription, ...] = (
     ),
     # CEC buttons
     ScreenPilotButtonDescription(
+        key="detect_cec",
+        translation_key="detect_cec",
+        icon="mdi:magnify-scan",
+        press_fn=lambda api: api.refresh_cec_capabilities(),
+    ),
+    ScreenPilotButtonDescription(
         key="power_on",
         translation_key="power_on",
         icon="mdi:power-on",

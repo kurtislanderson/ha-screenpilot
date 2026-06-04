@@ -48,7 +48,10 @@
         "name": "Web Console Service"
       },
       "cec_service": {
-        "name": "CEC Service"
+        "name": "CEC / HDMI Service"
+      },
+      "network_connected": {
+        "name": "Network Connected"
       }
     },
     "sensor": {
@@ -88,8 +91,26 @@
       "chrome_version": {
         "name": "Chrome Version"
       },
+      "last_heartbeat": {
+        "name": "Last Heartbeat"
+      },
+      "services_active": {
+        "name": "Services Active"
+      },
+      "display_resolution": {
+        "name": "Display Resolution"
+      },
       "tv_power_status": {
         "name": "TV Power Status"
+      },
+      "cec_detection_status": {
+        "name": "CEC Detection Status"
+      },
+      "last_cec_command": {
+        "name": "Last CEC Command"
+      },
+      "reboot_schedule": {
+        "name": "Reboot Schedule"
       }
     },
     "switch": {
@@ -98,6 +119,9 @@
       }
     },
     "button": {
+      "detect_cec": {
+        "name": "Detect CEC Capabilities"
+      },
       "reload_page": {
         "name": "Reload Page"
       },

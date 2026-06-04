@@ -109,6 +109,10 @@ class ScreenPilotAPI:
         """Get system information."""
         return await self._get("/api/system/info/")
 
+    async def get_display_info(self) -> dict[str, Any]:
+        """Get display/monitor information."""
+        return await self._get("/api/system/display/")
+
     async def get_health(self) -> dict[str, Any]:
         """Get comprehensive health status."""
         return await self._get("/api/health/")
@@ -121,6 +125,10 @@ class ScreenPilotAPI:
         """Reboot the system."""
         await self._post("/api/system/reboot/")
         return True
+
+    async def get_reboot_schedule(self) -> dict[str, Any]:
+        """Get the scheduled-reboot configuration."""
+        return await self._get("/api/system/reboot-schedule/")
 
     # Kiosk endpoints
     async def get_kiosk_url(self) -> dict[str, Any]:
@@ -152,7 +160,7 @@ class ScreenPilotAPI:
 
     async def hard_refresh(self) -> bool:
         """Hard refresh with cache clearing."""
-        await self._get("/api/kiosk/hard-refresh/")
+        await self._post("/api/kiosk/hard-refresh/")
         return True
 
     async def restart_browser(self) -> bool:
@@ -181,7 +189,9 @@ class ScreenPilotAPI:
 
     async def execute_javascript(self, script: str) -> dict[str, Any]:
         """Execute JavaScript in browser."""
-        return await self._post("/api/kiosk/devtools/execute/", {"script": script})
+        return await self._post(
+            "/api/kiosk/devtools/execute/", {"expression": script}
+        )
 
     async def get_devtools_version(self) -> dict[str, Any]:
         """Get Chrome DevTools version info."""
@@ -191,6 +201,19 @@ class ScreenPilotAPI:
     async def get_cec_status(self) -> dict[str, Any]:
         """Get CEC status."""
         return await self._get("/api/cec/status/")
+
+    async def get_cec_detection_status(self) -> dict[str, Any]:
+        """Get CEC capability-detection status."""
+        return await self._get("/api/cec/detection-status/")
+
+    async def refresh_cec_capabilities(self) -> bool:
+        """Trigger CEC capability detection."""
+        await self._post("/api/cec/refresh_capabilities/")
+        return True
+
+    async def get_cec_command_history(self, limit: int = 5) -> dict[str, Any]:
+        """Get recent CEC command-history entries (most recent first)."""
+        return await self._get(f"/api/cec/command-history/?limit={limit}")
 
     async def send_cec_command(self, command: str) -> bool:
         """Send a CEC command."""
