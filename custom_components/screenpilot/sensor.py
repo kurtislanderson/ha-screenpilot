@@ -13,7 +13,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, UnitOfTime
+from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -181,6 +181,22 @@ SENSORS: tuple[ScreenPilotSensorDescription, ...] = (
             "executed_at": data.last_cec_command_at,
             "count": data.cec_command_count,
         },
+    ),
+    # Deployment identity (diagnostic)
+    ScreenPilotSensorDescription(
+        key="screenpilot_version",
+        translation_key="screenpilot_version",
+        icon="mdi:tag-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.screenpilot_version,
+        attr_fn=lambda data: {"display_stack": data.display_stack},
+    ),
+    ScreenPilotSensorDescription(
+        key="display_stack",
+        translation_key="display_stack",
+        icon="mdi:monitor-dashboard",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.display_stack,
     ),
     # System sensors
     ScreenPilotSensorDescription(

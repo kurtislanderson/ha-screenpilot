@@ -47,6 +47,10 @@ You will need:
 - Zoom Level
 - Health Status
 - Heartbeat Age
+- ScreenPilot Version, Display Stack (diagnostic) — the running app version and
+  display stack (`wayland` = v2, `x11` = v1). Also surfaced as the device
+  `sw_version`, e.g. `2.0.0 (wayland)`. Shows `unknown` for ScreenPilot builds
+  predating the `/api/system/info/` version fields.
 
 ### Controls
 - TV Power Switch

@@ -30,12 +30,22 @@ class ScreenPilotEntity(CoordinatorEntity[ScreenPilotCoordinator]):
     @property
     def device_info(self) -> DeviceInfo:
         """Return device info."""
+        # Report the live ScreenPilot app version (and which display stack it is
+        # driving) as the device sw_version, e.g. "2.0.0 (wayland)". Falls back
+        # to "unknown" on a Pi too old to expose /api/system/info version fields.
+        data = self.coordinator.data
+        version = data.screenpilot_version if data else "unknown"
+        stack = data.display_stack if data else "unknown"
+        if stack and stack != "unknown":
+            sw_version = f"{version} ({stack})"
+        else:
+            sw_version = version
         return DeviceInfo(
             identifiers={(DOMAIN, self._entry_id)},
             name=self.coordinator.device_name,
             manufacturer="ScreenPilot",
             model="Kiosk Display",
-            sw_version="1.0.0",
+            sw_version=sw_version,
             configuration_url=self.coordinator.api.base_url,
         )
 

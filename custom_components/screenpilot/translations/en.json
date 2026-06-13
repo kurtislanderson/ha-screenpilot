@@ -91,6 +91,12 @@
       "chrome_version": {
         "name": "Chrome Version"
       },
+      "screenpilot_version": {
+        "name": "ScreenPilot Version"
+      },
+      "display_stack": {
+        "name": "Display Stack"
+      },
       "last_heartbeat": {
         "name": "Last Heartbeat"
       },

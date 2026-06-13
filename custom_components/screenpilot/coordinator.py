@@ -50,6 +50,13 @@ class ScreenPilotData:
     memory_percent: float = 0.0
     disk_percent: float = 0.0
 
+    # Version / deployment identity (exposed by ScreenPilot /api/system/info/).
+    # screenpilot_version: app version ("2.0.0" = Wayland line, "1.x" = legacy
+    # X11). display_stack: "wayland" | "x11". Default "unknown" so an older Pi
+    # that predates these fields degrades gracefully instead of erroring.
+    screenpilot_version: str = "unknown"
+    display_stack: str = "unknown"
+
     # Health
     system_healthy: bool = False
     health_status: str = "unknown"
@@ -259,6 +266,12 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
                 hostname=system.get("hostname", ""),
                 ip_address=system.get("ip_address", ""),
                 uptime=system.get("uptime", 0),
+                # Version/stack — fall back to the health payload, then "unknown"
+                # (an older ScreenPilot omits these entirely).
+                screenpilot_version=system.get("version")
+                or health.get("version", "unknown"),
+                display_stack=system.get("display_stack")
+                or health.get("display_stack", "unknown"),
                 cpu_percent=system.get("cpu_percent", 0.0),
                 memory_percent=memory.get("percent", 0.0)
                 if isinstance(memory, dict)
