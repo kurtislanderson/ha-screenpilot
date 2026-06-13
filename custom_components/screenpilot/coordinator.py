@@ -279,8 +279,13 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
                 wifi_connected=bool(wifi.get("connected")),
                 # Services
                 services_healthy=services_healthy,
-                kiosk_service_running=service_states.get(
-                    "screenpilot-kiosk.service", False
+                # Display-stack-aware: a Wayland deploy runs screenpilot-kiosk-wayland
+                # while the legacy screenpilot-kiosk is intentionally dormant (and vice
+                # versa on X11). Report the kiosk as running if EITHER unit is active so
+                # the sensor doesn't silently read False on a healthy Wayland kiosk.
+                kiosk_service_running=bool(
+                    service_states.get("screenpilot-kiosk-wayland.service")
+                    or service_states.get("screenpilot-kiosk.service")
                 ),
                 webconsole_service_running=service_states.get(
                     "screenpilot-webconsole.service", False
