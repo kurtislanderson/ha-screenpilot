@@ -17,9 +17,14 @@ from .api import ScreenPilotAPI, ScreenPilotConnectionError, ScreenPilotError
 from .const import (
     ATTR_COMMAND,
     ATTR_DATA_TYPE,
+    ATTR_DISMISSIBLE,
+    ATTR_HEIGHT,
+    ATTR_HTML,
     ATTR_LEVEL,
     ATTR_SCRIPT,
+    ATTR_TITLE,
     ATTR_URL,
+    ATTR_WIDTH,
     CEC_COMMANDS,
     CLEAR_DATA_TYPES,
     CONF_USE_HTTPS,
@@ -29,6 +34,7 @@ from .const import (
     SERVICE_LOAD_URL,
     SERVICE_SEND_CEC,
     SERVICE_SET_ZOOM,
+    SERVICE_SHOW_OVERLAY,
 )
 from .coordinator import ScreenPilotCoordinator
 
@@ -107,6 +113,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 SERVICE_SEND_CEC,
                 SERVICE_CLEAR_DATA,
                 SERVICE_SET_ZOOM,
+                SERVICE_SHOW_OVERLAY,
             ]:
                 hass.services.async_remove(DOMAIN, service)
             _SERVICES_REGISTERED = False
@@ -222,6 +229,33 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         if errors:
             raise HomeAssistantError(f"Failed on some devices: {', '.join(errors)}")
 
+    async def handle_show_overlay(call: ServiceCall) -> None:
+        """Handle show_overlay service."""
+        entries = await get_entries()
+        if not entries:
+            raise HomeAssistantError("No ScreenPilot devices configured")
+
+        kwargs = {
+            "url": call.data.get(ATTR_URL),
+            "html": call.data.get(ATTR_HTML),
+            "title": call.data.get(ATTR_TITLE),
+            "dismissible": call.data.get(ATTR_DISMISSIBLE),
+            "width": call.data.get(ATTR_WIDTH),
+            "height": call.data.get(ATTR_HEIGHT),
+        }
+
+        errors = []
+        for entry_id, api, coordinator in entries:
+            try:
+                await api.show_overlay(**kwargs)
+                await coordinator.async_request_refresh()
+            except ScreenPilotError as err:
+                errors.append(f"{entry_id}: {err}")
+                _LOGGER.error("Failed to show overlay on %s: %s", entry_id, err)
+
+        if errors:
+            raise HomeAssistantError(f"Failed on some devices: {', '.join(errors)}")
+
     # Register services
     hass.services.async_register(
         DOMAIN,
@@ -262,6 +296,22 @@ async def async_setup_services(hass: HomeAssistant) -> None:
                 vol.Required(ATTR_LEVEL): vol.All(
                     vol.Coerce(int), vol.Range(min=25, max=500)
                 )
+            }
+        ),
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SHOW_OVERLAY,
+        handle_show_overlay,
+        schema=vol.Schema(
+            {
+                vol.Optional(ATTR_URL): cv.string,
+                vol.Optional(ATTR_HTML): cv.string,
+                vol.Optional(ATTR_TITLE): cv.string,
+                vol.Optional(ATTR_DISMISSIBLE): cv.boolean,
+                vol.Optional(ATTR_WIDTH): cv.string,
+                vol.Optional(ATTR_HEIGHT): cv.string,
             }
         ),
     )

@@ -187,6 +187,51 @@ class ScreenPilotAPI:
         await self._post("/api/kiosk/session_mode/", {"mode": mode})
         return True
 
+    # Navigation overlay endpoints
+    async def get_overlay_status(self) -> dict[str, Any]:
+        """Get navigation-overlay status (present/panel visible/url/home)."""
+        return await self._get("/api/kiosk/overlay/status/")
+
+    async def overlay_home(self) -> bool:
+        """Send the kiosk back to its configured HOME url via the overlay."""
+        await self._post("/api/kiosk/overlay/home/")
+        return True
+
+    async def overlay_back(self) -> bool:
+        """Trigger the overlay Back action (history.back, or HOME if none)."""
+        await self._post("/api/kiosk/overlay/back/")
+        return True
+
+    async def hide_overlay(self) -> bool:
+        """Hide/dismiss the overlay modal panel (if shown)."""
+        await self._post("/api/kiosk/overlay/hide/")
+        return True
+
+    async def show_overlay(
+        self,
+        url: str | None = None,
+        html: str | None = None,
+        title: str | None = None,
+        dismissible: bool | None = None,
+        width: str | None = None,
+        height: str | None = None,
+    ) -> bool:
+        """Show a modal overlay panel (provide url OR html)."""
+        payload = {
+            k: v
+            for k, v in {
+                "url": url,
+                "html": html,
+                "title": title,
+                "dismissible": dismissible,
+                "width": width,
+                "height": height,
+            }.items()
+            if v is not None
+        }
+        await self._post("/api/kiosk/overlay/show/", payload)
+        return True
+
     async def execute_javascript(self, script: str) -> dict[str, Any]:
         """Execute JavaScript in browser."""
         return await self._post("/api/kiosk/devtools/execute/", {"expression": script})

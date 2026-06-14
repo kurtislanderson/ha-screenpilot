@@ -18,6 +18,7 @@ SERVICE_EXECUTE_JS: Final = "execute_javascript"
 SERVICE_SEND_CEC: Final = "send_cec_command"
 SERVICE_CLEAR_DATA: Final = "clear_data"
 SERVICE_SET_ZOOM: Final = "set_zoom"
+SERVICE_SHOW_OVERLAY: Final = "show_overlay"
 
 # Attributes
 ATTR_URL: Final = "url"
@@ -25,6 +26,11 @@ ATTR_SCRIPT: Final = "script"
 ATTR_COMMAND: Final = "command"
 ATTR_DATA_TYPE: Final = "data_type"
 ATTR_LEVEL: Final = "level"
+ATTR_HTML: Final = "html"
+ATTR_TITLE: Final = "title"
+ATTR_DISMISSIBLE: Final = "dismissible"
+ATTR_WIDTH: Final = "width"
+ATTR_HEIGHT: Final = "height"
 
 # CEC Commands
 CEC_COMMANDS: Final = [

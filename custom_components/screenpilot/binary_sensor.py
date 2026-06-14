@@ -78,6 +78,12 @@ BINARY_SENSORS: tuple[ScreenPilotBinarySensorDescription, ...] = (
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
         value_fn=lambda data: data.ethernet_connected or data.wifi_connected,
     ),
+    # Navigation overlay
+    ScreenPilotBinarySensorDescription(
+        key="overlay_visible",
+        translation_key="overlay_visible",
+        value_fn=lambda data: data.overlay_visible,
+    ),
     # CEC sensors
     ScreenPilotBinarySensorDescription(
         key="tv_present",

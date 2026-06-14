@@ -87,6 +87,10 @@ class ScreenPilotData:
     zoom_level: int = 100
     session_mode: str = "persistent"
 
+    # Navigation overlay
+    overlay_present: bool = False
+    overlay_visible: bool = False
+
     # Display
     display_resolution: str = ""
     display_refresh_rate: float = 0.0
@@ -153,6 +157,7 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
                 "display",
                 "reboot_schedule",
                 "cec_history",
+                "overlay",
             )
             results = await asyncio.gather(
                 self.api.get_health(),
@@ -167,6 +172,7 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
                 self.api.get_display_info(),
                 self.api.get_reboot_schedule(),
                 self.api.get_cec_command_history(),
+                self.api.get_overlay_status(),
                 return_exceptions=True,
             )
 
@@ -189,6 +195,7 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
                 display,
                 reboot,
                 cec_history,
+                overlay,
             ) = results
 
             # Handle exceptions gracefully
@@ -209,6 +216,7 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
             display = safe_get(display, {})
             reboot = safe_get(reboot, {})
             cec_history = safe_get(cec_history, {})
+            overlay = safe_get(overlay, {})
 
             # Parse system info
             memory = system.get("memory", {})
@@ -319,6 +327,16 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
                 startup_url=startup.get("url", ""),
                 zoom_level=zoom.get("zoom", 100),
                 session_mode=kiosk_health.get("session_mode", "persistent"),
+                # Navigation overlay. The status endpoint returns
+                # {present, panel, url, connected, home}; "panel" is whether the
+                # modal panel is currently shown. Defaults False when the overlay
+                # service is absent or not connected to the browser.
+                overlay_present=bool(overlay.get("present"))
+                if isinstance(overlay, dict)
+                else False,
+                overlay_visible=bool(overlay.get("panel"))
+                if isinstance(overlay, dict)
+                else False,
                 # Display
                 display_resolution=display_current.get("resolution", ""),
                 display_refresh_rate=display_current.get("refresh_rate", 0.0),

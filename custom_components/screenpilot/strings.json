@@ -52,6 +52,9 @@
       },
       "network_connected": {
         "name": "Network Connected"
+      },
+      "overlay_visible": {
+        "name": "Overlay Visible"
       }
     },
     "sensor": {
@@ -169,6 +172,15 @@
       },
       "make_inactive_source": {
         "name": "Make Inactive Source"
+      },
+      "overlay_home": {
+        "name": "Overlay Home"
+      },
+      "overlay_back": {
+        "name": "Overlay Back"
+      },
+      "overlay_hide": {
+        "name": "Overlay Hide"
       }
     },
     "number": {
