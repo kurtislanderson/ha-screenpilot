@@ -64,6 +64,28 @@ BUTTONS: tuple[ScreenPilotButtonDescription, ...] = (
         press_fn=lambda api: api.clear_data("all"),
         refresh_after=False,
     ),
+    # Navigation overlay buttons
+    ScreenPilotButtonDescription(
+        key="overlay_home",
+        translation_key="overlay_home",
+        icon="mdi:home-map-marker",
+        press_fn=lambda api: api.overlay_home(),
+        refresh_after=False,
+    ),
+    ScreenPilotButtonDescription(
+        key="overlay_back",
+        translation_key="overlay_back",
+        icon="mdi:arrow-left-circle",
+        press_fn=lambda api: api.overlay_back(),
+        refresh_after=False,
+    ),
+    ScreenPilotButtonDescription(
+        key="overlay_hide",
+        translation_key="overlay_hide",
+        icon="mdi:close-box-outline",
+        press_fn=lambda api: api.hide_overlay(),
+        refresh_after=False,
+    ),
     # System buttons
     ScreenPilotButtonDescription(
         key="reboot_device",

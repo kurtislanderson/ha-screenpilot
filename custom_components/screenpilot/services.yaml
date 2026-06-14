@@ -78,3 +78,49 @@ set_zoom:
           max: 500
           step: 5
           unit_of_measurement: "%"
+
+show_overlay:
+  name: Show Overlay
+  description: Show a modal overlay panel over the current kiosk content
+  fields:
+    url:
+      name: URL
+      description: URL to load in the overlay panel (provide url or html)
+      required: false
+      example: "http://localhost/kiosk-files/info.html"
+      selector:
+        text:
+    html:
+      name: HTML
+      description: Inline HTML to render in the overlay (provide url or html)
+      required: false
+      selector:
+        text:
+          multiline: true
+    title:
+      name: Title
+      description: Optional panel title
+      required: false
+      selector:
+        text:
+    dismissible:
+      name: Dismissible
+      description: Show a close button and allow backdrop click to dismiss
+      required: false
+      default: true
+      selector:
+        boolean:
+    width:
+      name: Width
+      description: CSS width, e.g. 80vw
+      required: false
+      example: "80vw"
+      selector:
+        text:
+    height:
+      name: Height
+      description: CSS height, e.g. 80vh
+      required: false
+      example: "80vh"
+      selector:
+        text:
