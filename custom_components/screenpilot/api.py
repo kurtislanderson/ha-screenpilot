@@ -232,6 +232,44 @@ class ScreenPilotAPI:
         await self._post("/api/kiosk/overlay/show/", payload)
         return True
 
+    async def get_alerts(self) -> dict[str, Any]:
+        """List active overlay alerts + automatic-source enable map."""
+        return await self._get("/api/kiosk/overlay/alerts/")
+
+    async def raise_alert(
+        self,
+        alert_id: str,
+        severity: str,
+        message: str,
+        ttl: int | None = None,
+        dismissible: bool | None = None,
+    ) -> bool:
+        """Raise/update a manual overlay alert (dedupe by id)."""
+        payload: dict[str, Any] = {
+            "id": alert_id,
+            "severity": severity,
+            "message": message,
+        }
+        if ttl is not None:
+            payload["ttl"] = ttl
+        if dismissible is not None:
+            payload["dismissible"] = dismissible
+        await self._post("/api/kiosk/overlay/alerts/", payload)
+        return True
+
+    async def clear_alert(self, alert_id: str) -> bool:
+        """Clear an overlay alert by id."""
+        await self._post("/api/kiosk/overlay/alerts/clear/", {"id": alert_id})
+        return True
+
+    async def set_alert_source(self, source: str, enabled: bool) -> bool:
+        """Enable/disable an automatic-alert source (persists on the device)."""
+        await self._post(
+            "/api/kiosk/overlay/alerts/source/",
+            {"source": source, "enabled": enabled},
+        )
+        return True
+
     async def execute_javascript(self, script: str) -> dict[str, Any]:
         """Execute JavaScript in browser."""
         return await self._post("/api/kiosk/devtools/execute/", {"expression": script})

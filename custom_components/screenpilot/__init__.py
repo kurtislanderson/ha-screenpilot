@@ -15,24 +15,35 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import ScreenPilotAPI, ScreenPilotConnectionError, ScreenPilotError
 from .const import (
+    ALERT_SEVERITIES,
+    ALERT_SOURCES,
     ATTR_COMMAND,
     ATTR_DATA_TYPE,
     ATTR_DISMISSIBLE,
+    ATTR_ENABLED,
     ATTR_HEIGHT,
     ATTR_HTML,
+    ATTR_ID,
     ATTR_LEVEL,
+    ATTR_MESSAGE,
     ATTR_SCRIPT,
+    ATTR_SEVERITY,
+    ATTR_SOURCE,
     ATTR_TITLE,
+    ATTR_TTL,
     ATTR_URL,
     ATTR_WIDTH,
     CEC_COMMANDS,
     CLEAR_DATA_TYPES,
     CONF_USE_HTTPS,
     DOMAIN,
+    SERVICE_CLEAR_ALERT,
     SERVICE_CLEAR_DATA,
     SERVICE_EXECUTE_JS,
     SERVICE_LOAD_URL,
+    SERVICE_RAISE_ALERT,
     SERVICE_SEND_CEC,
+    SERVICE_SET_ALERT_SOURCE,
     SERVICE_SET_ZOOM,
     SERVICE_SHOW_OVERLAY,
 )
@@ -114,6 +125,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 SERVICE_CLEAR_DATA,
                 SERVICE_SET_ZOOM,
                 SERVICE_SHOW_OVERLAY,
+                SERVICE_RAISE_ALERT,
+                SERVICE_CLEAR_ALERT,
+                SERVICE_SET_ALERT_SOURCE,
             ]:
                 hass.services.async_remove(DOMAIN, service)
             _SERVICES_REGISTERED = False
@@ -256,6 +270,58 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         if errors:
             raise HomeAssistantError(f"Failed on some devices: {', '.join(errors)}")
 
+    async def handle_raise_alert(call: ServiceCall) -> None:
+        """Handle raise_alert service."""
+        entries = await get_entries()
+        if not entries:
+            raise HomeAssistantError("No ScreenPilot devices configured")
+        kwargs = {
+            "alert_id": call.data[ATTR_ID],
+            "severity": call.data[ATTR_SEVERITY],
+            "message": call.data[ATTR_MESSAGE],
+            "ttl": call.data.get(ATTR_TTL),
+            "dismissible": call.data.get(ATTR_DISMISSIBLE),
+        }
+        errors = []
+        for entry_id, api, coordinator in entries:
+            try:
+                await api.raise_alert(**kwargs)
+            except ScreenPilotError as err:
+                errors.append(f"{entry_id}: {err}")
+                _LOGGER.error("Failed to raise alert on %s: %s", entry_id, err)
+        if errors:
+            raise HomeAssistantError(f"Failed on some devices: {', '.join(errors)}")
+
+    async def handle_clear_alert(call: ServiceCall) -> None:
+        """Handle clear_alert service."""
+        entries = await get_entries()
+        if not entries:
+            raise HomeAssistantError("No ScreenPilot devices configured")
+        errors = []
+        for entry_id, api, coordinator in entries:
+            try:
+                await api.clear_alert(call.data[ATTR_ID])
+            except ScreenPilotError as err:
+                errors.append(f"{entry_id}: {err}")
+                _LOGGER.error("Failed to clear alert on %s: %s", entry_id, err)
+        if errors:
+            raise HomeAssistantError(f"Failed on some devices: {', '.join(errors)}")
+
+    async def handle_set_alert_source(call: ServiceCall) -> None:
+        """Handle set_alert_source service."""
+        entries = await get_entries()
+        if not entries:
+            raise HomeAssistantError("No ScreenPilot devices configured")
+        errors = []
+        for entry_id, api, coordinator in entries:
+            try:
+                await api.set_alert_source(call.data[ATTR_SOURCE], call.data[ATTR_ENABLED])
+            except ScreenPilotError as err:
+                errors.append(f"{entry_id}: {err}")
+                _LOGGER.error("Failed to set alert source on %s: %s", entry_id, err)
+        if errors:
+            raise HomeAssistantError(f"Failed on some devices: {', '.join(errors)}")
+
     # Register services
     hass.services.async_register(
         DOMAIN,
@@ -312,6 +378,38 @@ async def async_setup_services(hass: HomeAssistant) -> None:
                 vol.Optional(ATTR_DISMISSIBLE): cv.boolean,
                 vol.Optional(ATTR_WIDTH): cv.string,
                 vol.Optional(ATTR_HEIGHT): cv.string,
+            }
+        ),
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_RAISE_ALERT,
+        handle_raise_alert,
+        schema=vol.Schema(
+            {
+                vol.Required(ATTR_ID): cv.string,
+                vol.Required(ATTR_SEVERITY): vol.In(ALERT_SEVERITIES),
+                vol.Required(ATTR_MESSAGE): cv.string,
+                vol.Optional(ATTR_TTL): vol.All(vol.Coerce(int), vol.Range(min=0)),
+                vol.Optional(ATTR_DISMISSIBLE): cv.boolean,
+            }
+        ),
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_CLEAR_ALERT,
+        handle_clear_alert,
+        schema=vol.Schema({vol.Required(ATTR_ID): cv.string}),
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_ALERT_SOURCE,
+        handle_set_alert_source,
+        schema=vol.Schema(
+            {
+                vol.Required(ATTR_SOURCE): vol.In(ALERT_SOURCES),
+                vol.Required(ATTR_ENABLED): cv.boolean,
             }
         ),
     )

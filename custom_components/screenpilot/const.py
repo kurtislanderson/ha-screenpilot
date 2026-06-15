@@ -19,6 +19,9 @@ SERVICE_SEND_CEC: Final = "send_cec_command"
 SERVICE_CLEAR_DATA: Final = "clear_data"
 SERVICE_SET_ZOOM: Final = "set_zoom"
 SERVICE_SHOW_OVERLAY: Final = "show_overlay"
+SERVICE_RAISE_ALERT: Final = "raise_alert"
+SERVICE_CLEAR_ALERT: Final = "clear_alert"
+SERVICE_SET_ALERT_SOURCE: Final = "set_alert_source"
 
 # Attributes
 ATTR_URL: Final = "url"
@@ -31,6 +34,15 @@ ATTR_TITLE: Final = "title"
 ATTR_DISMISSIBLE: Final = "dismissible"
 ATTR_WIDTH: Final = "width"
 ATTR_HEIGHT: Final = "height"
+ATTR_ID: Final = "id"
+ATTR_SEVERITY: Final = "severity"
+ATTR_MESSAGE: Final = "message"
+ATTR_TTL: Final = "ttl"
+ATTR_SOURCE: Final = "source"
+ATTR_ENABLED: Final = "enabled"
+
+ALERT_SEVERITIES: Final = ["info", "warning", "critical", "success"]
+ALERT_SOURCES: Final = ["wifi_fallback", "offline", "service_degraded"]
 
 # CEC Commands
 CEC_COMMANDS: Final = [

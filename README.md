@@ -7,7 +7,7 @@ Control your ScreenPilot kiosk display from Home Assistant.
 ## Features
 
 - **Browser Control**: Navigate URLs, reload/hard-refresh, zoom, clear data, session mode
-- **Navigation Overlay**: Show/hide a modal panel, Home/Back navigation, overlay-visible status
+- **Navigation Overlay**: Show/hide a modal panel, Home/Back navigation, overlay-visible status, plus severity-styled alert banners (auto + manual)
 - **TV Control**: Power on/off, volume, HDMI input switching via CEC
 - **Monitoring**: System health, CPU, memory, disk, per-service status, network, reboot schedule
 - **Screenshots**: Live display capture
@@ -79,6 +79,9 @@ You will need:
 | `screenpilot.clear_data` | Clear browser data |
 | `screenpilot.set_zoom` | Set zoom level |
 | `screenpilot.show_overlay` | Show a modal overlay panel (`url`/`html`/`title`/`dismissible`/`width`/`height`) |
+| `screenpilot.raise_alert` | Raise/update an overlay alert banner (`id`/`severity`/`message`/`ttl`/`dismissible`) |
+| `screenpilot.clear_alert` | Clear an overlay alert by `id` |
+| `screenpilot.set_alert_source` | Enable/disable an automatic alert source (`wifi_fallback`/`offline`/`service_degraded`) |
 
 ## Example Automations
 

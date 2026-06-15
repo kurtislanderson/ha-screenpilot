@@ -124,3 +124,81 @@ show_overlay:
       example: "80vh"
       selector:
         text:
+
+raise_alert:
+  name: Raise Alert
+  description: Raise or update an overlay alert banner (deduped by id)
+  fields:
+    id:
+      name: ID
+      description: Unique alert id (auto:-prefixed ids are reserved)
+      required: true
+      example: "door_open"
+      selector:
+        text:
+    severity:
+      name: Severity
+      description: Alert severity level
+      required: true
+      selector:
+        select:
+          options:
+            - "info"
+            - "warning"
+            - "critical"
+            - "success"
+    message:
+      name: Message
+      description: Alert message text
+      required: true
+      example: "Front door is open"
+      selector:
+        text:
+    ttl:
+      name: TTL
+      description: Optional time-to-live in seconds (0 = no expiry)
+      required: false
+      selector:
+        number:
+          min: 0
+          step: 1
+          unit_of_measurement: "s"
+    dismissible:
+      name: Dismissible
+      description: Allow the user to dismiss the alert
+      required: false
+      selector:
+        boolean:
+
+clear_alert:
+  name: Clear Alert
+  description: Clear an overlay alert by id
+  fields:
+    id:
+      name: ID
+      description: The alert id to clear
+      required: true
+      example: "door_open"
+      selector:
+        text:
+
+set_alert_source:
+  name: Set Alert Source
+  description: Enable or disable an automatic-alert source
+  fields:
+    source:
+      name: Source
+      description: Automatic alert source to toggle
+      required: true
+      selector:
+        select:
+          options:
+            - "wifi_fallback"
+            - "offline"
+            - "service_degraded"
+    enabled:
+      name: Enabled
+      description: Whether the source is enabled
+      required: true
+      selector:
+        boolean:
