@@ -14,7 +14,7 @@ jobs:
     # HACS action has known issues with manifest detection - use hassfest as authoritative
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: HACS validation
         uses: hacs/action@22.5.0
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Validate with hassfest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Run hassfest
         uses: home-assistant/actions/hassfest@master
@@ -36,10 +36,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Lint with Ruff
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -56,10 +56,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Run tests
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
