@@ -315,7 +315,9 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         errors = []
         for entry_id, api, coordinator in entries:
             try:
-                await api.set_alert_source(call.data[ATTR_SOURCE], call.data[ATTR_ENABLED])
+                await api.set_alert_source(
+                    call.data[ATTR_SOURCE], call.data[ATTR_ENABLED]
+                )
             except ScreenPilotError as err:
                 errors.append(f"{entry_id}: {err}")
                 _LOGGER.error("Failed to set alert source on %s: %s", entry_id, err)
