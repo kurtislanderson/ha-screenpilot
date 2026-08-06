@@ -215,8 +215,13 @@ class ScreenPilotAPI:
         dismissible: bool | None = None,
         width: str | None = None,
         height: str | None = None,
+        fullscreen: bool | None = None,
     ) -> bool:
-        """Show a modal overlay panel (provide url OR html)."""
+        """Show a modal overlay panel (provide url OR html).
+
+        ``fullscreen`` makes it an edge-to-edge takeover rather than a modal
+        card; width/height are ignored in that mode.
+        """
         payload = {
             k: v
             for k, v in {
@@ -226,6 +231,7 @@ class ScreenPilotAPI:
                 "dismissible": dismissible,
                 "width": width,
                 "height": height,
+                "fullscreen": fullscreen,
             }.items()
             if v is not None
         }
