@@ -78,10 +78,59 @@ You will need:
 | `screenpilot.send_cec_command` | Send CEC command |
 | `screenpilot.clear_data` | Clear browser data |
 | `screenpilot.set_zoom` | Set zoom level |
-| `screenpilot.show_overlay` | Show a modal overlay panel (`url`/`html`/`title`/`dismissible`/`width`/`height`) |
+| `screenpilot.show_overlay` | Show an overlay panel (`url`/`html`/`title`/`dismissible`/`fullscreen`/`width`/`height`) |
 | `screenpilot.raise_alert` | Raise/update an overlay alert banner (`id`/`severity`/`message`/`ttl`/`dismissible`) |
 | `screenpilot.clear_alert` | Clear an overlay alert by `id` |
 | `screenpilot.set_alert_source` | Enable/disable an automatic alert source (`wifi_fallback`/`offline`/`service_degraded`) |
+
+### Targeting a specific player
+
+Every service takes an optional **`device_id`**. Omit it and the call applies to **all**
+configured ScreenPilot devices — the historical behaviour, kept so existing automations
+keep working. On a multi-player site you almost always want to target:
+
+```yaml
+action: screenpilot.load_url
+data:
+  device_id: 00e898176e2828fe967ba9d245581cc7   # or a list
+  url: https://example.com/dashboard
+```
+
+### Full-screen takeover and the CSP caveat
+
+`show_overlay` accepts `fullscreen: true` for an edge-to-edge takeover instead of a modal
+card. The panel is rendered in an **iframe**, so it is subject to the *currently displayed
+page's* `Content-Security-Policy`. A page serving
+
+```
+content-security-policy: ... frame-src 'self' https: *.wodify.com
+```
+
+blocks both `http://localhost/...` and inline `html` (a `data:` URL): the panel opens but
+shows Chromium's "This content is blocked" page, even though the service call succeeds.
+
+For a takeover on a CSP-locked page, **navigate** instead — a top-level navigation is not
+governed by `frame-src`:
+
+```yaml
+# start
+action: screenpilot.load_url
+data:
+  device_id: <player>
+  url: >-
+    http://localhost/kiosk-files/kiosk-takeover.html?title=Pre-Class%20Check&rows=%5B%5B%22Front%20TV%22%2C%22Online%22%2C%22ok%22%5D%5D
+
+# end — press that player's Overlay Home button
+action: button.press
+target:
+  entity_id: button.<player>_overlay_home
+```
+
+`load_url` is a pure CDP navigation and is not persisted on the device, so a reboot returns
+the player to its configured HOME on its own.
+
+**Alerts** (`raise_alert` / `clear_alert`) are injected into the page DOM rather than
+framed, so they are unaffected by page CSP and work over live signage.
 
 ## Example Automations
 
