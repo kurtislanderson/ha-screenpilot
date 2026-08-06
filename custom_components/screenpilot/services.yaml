@@ -2,6 +2,14 @@ load_url:
   name: Load URL
   description: Navigate the kiosk browser to a URL
   fields:
+    device_id:
+      name: Device
+      description: Target players (omit to apply to every configured player)
+      required: false
+      selector:
+        device:
+          integration: screenpilot
+          multiple: true
     url:
       name: URL
       description: The URL to load
@@ -14,6 +22,14 @@ execute_javascript:
   name: Execute JavaScript
   description: Run JavaScript code in the kiosk browser
   fields:
+    device_id:
+      name: Device
+      description: Target players (omit to apply to every configured player)
+      required: false
+      selector:
+        device:
+          integration: screenpilot
+          multiple: true
     script:
       name: Script
       description: JavaScript code to execute
@@ -27,6 +43,14 @@ send_cec_command:
   name: Send CEC Command
   description: Send a CEC command to the TV
   fields:
+    device_id:
+      name: Device
+      description: Target players (omit to apply to every configured player)
+      required: false
+      selector:
+        device:
+          integration: screenpilot
+          multiple: true
     command:
       name: Command
       description: CEC command to send
@@ -51,6 +75,14 @@ clear_data:
   name: Clear Browser Data
   description: Clear browser cache, cookies, or all data
   fields:
+    device_id:
+      name: Device
+      description: Target players (omit to apply to every configured player)
+      required: false
+      selector:
+        device:
+          integration: screenpilot
+          multiple: true
     data_type:
       name: Data Type
       description: Type of data to clear
@@ -68,6 +100,14 @@ set_zoom:
   name: Set Zoom Level
   description: Set the browser zoom level
   fields:
+    device_id:
+      name: Device
+      description: Target players (omit to apply to every configured player)
+      required: false
+      selector:
+        device:
+          integration: screenpilot
+          multiple: true
     level:
       name: Zoom Level
       description: Zoom percentage (25-500)
@@ -81,8 +121,25 @@ set_zoom:
 
 show_overlay:
   name: Show Overlay
-  description: Show a modal overlay panel over the current kiosk content
+  description: >
+    Show an overlay panel over the current kiosk content - a modal card by
+    default, or an edge-to-edge takeover with fullscreen true
   fields:
+    device_id:
+      name: Device
+      description: Target players (omit to show on every configured player)
+      required: false
+      selector:
+        device:
+          integration: screenpilot
+          multiple: true
+    fullscreen:
+      name: Full Screen
+      description: Edge-to-edge takeover (ignores width and height)
+      required: false
+      default: false
+      selector:
+        boolean:
     url:
       name: URL
       description: URL to load in the overlay panel (provide url or html)
@@ -129,6 +186,14 @@ raise_alert:
   name: Raise Alert
   description: Raise or update an overlay alert banner (deduped by id)
   fields:
+    device_id:
+      name: Device
+      description: Target players (omit to apply to every configured player)
+      required: false
+      selector:
+        device:
+          integration: screenpilot
+          multiple: true
     id:
       name: ID
       description: Unique alert id (auto:-prefixed ids are reserved)
@@ -174,6 +239,14 @@ clear_alert:
   name: Clear Alert
   description: Clear an overlay alert by id
   fields:
+    device_id:
+      name: Device
+      description: Target players (omit to apply to every configured player)
+      required: false
+      selector:
+        device:
+          integration: screenpilot
+          multiple: true
     id:
       name: ID
       description: The alert id to clear
@@ -186,6 +259,14 @@ set_alert_source:
   name: Set Alert Source
   description: Enable or disable an automatic-alert source
   fields:
+    device_id:
+      name: Device
+      description: Target players (omit to apply to every configured player)
+      required: false
+      selector:
+        device:
+          integration: screenpilot
+          multiple: true
     source:
       name: Source
       description: Automatic alert source to toggle

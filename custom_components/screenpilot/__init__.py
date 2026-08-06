@@ -11,6 +11,7 @@ from homeassistant.const import CONF_HOST, CONF_NAME, CONF_TOKEN, Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import ScreenPilotAPI, ScreenPilotConnectionError, ScreenPilotError
@@ -19,7 +20,9 @@ from .const import (
     ALERT_SOURCES,
     ATTR_COMMAND,
     ATTR_DATA_TYPE,
+    ATTR_DEVICE_ID,
     ATTR_DISMISSIBLE,
+    ATTR_FULLSCREEN,
     ATTR_ENABLED,
     ATTR_HEIGHT,
     ATTR_HTML,
@@ -142,18 +145,39 @@ async def async_setup_services(hass: HomeAssistant) -> None:
     if _SERVICES_REGISTERED:
         return
 
-    async def get_entries() -> list[tuple[str, ScreenPilotAPI, ScreenPilotCoordinator]]:
-        """Get all configured entries."""
+    async def get_entries(
+        call: ServiceCall | None = None,
+    ) -> list[tuple[str, ScreenPilotAPI, ScreenPilotCoordinator]]:
+        """Get configured entries, narrowed to a service call's target devices.
+
+        Without a device target the call fans out to every configured player —
+        the historic behaviour, kept so existing automations do not change.
+        """
+        wanted: set[str] | None = None
+        if call is not None and call.data.get(ATTR_DEVICE_ID):
+            device_ids = call.data[ATTR_DEVICE_ID]
+            if isinstance(device_ids, str):
+                device_ids = [device_ids]
+            registry = dr.async_get(hass)
+            wanted = set()
+            for device_id in device_ids:
+                device = registry.async_get(device_id)
+                if device is None:
+                    raise HomeAssistantError(f"Unknown device: {device_id}")
+                wanted |= device.config_entries
+
         entries = []
         for entry_id, data in hass.data.get(DOMAIN, {}).items():
             if isinstance(data, dict) and "api" in data:
+                if wanted is not None and entry_id not in wanted:
+                    continue
                 entries.append((entry_id, data["api"], data["coordinator"]))
         return entries
 
     async def handle_load_url(call: ServiceCall) -> None:
         """Handle load_url service."""
         url = call.data[ATTR_URL]
-        entries = await get_entries()
+        entries = await get_entries(call)
         if not entries:
             raise HomeAssistantError("No ScreenPilot devices configured")
 
@@ -172,7 +196,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
     async def handle_execute_js(call: ServiceCall) -> None:
         """Handle execute_javascript service."""
         script = call.data[ATTR_SCRIPT]
-        entries = await get_entries()
+        entries = await get_entries(call)
         if not entries:
             raise HomeAssistantError("No ScreenPilot devices configured")
 
@@ -190,7 +214,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
     async def handle_send_cec(call: ServiceCall) -> None:
         """Handle send_cec_command service."""
         command = call.data[ATTR_COMMAND]
-        entries = await get_entries()
+        entries = await get_entries(call)
         if not entries:
             raise HomeAssistantError("No ScreenPilot devices configured")
 
@@ -209,7 +233,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
     async def handle_clear_data(call: ServiceCall) -> None:
         """Handle clear_data service."""
         data_type = call.data.get(ATTR_DATA_TYPE, "all")
-        entries = await get_entries()
+        entries = await get_entries(call)
         if not entries:
             raise HomeAssistantError("No ScreenPilot devices configured")
 
@@ -227,7 +251,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
     async def handle_set_zoom(call: ServiceCall) -> None:
         """Handle set_zoom service."""
         level = call.data[ATTR_LEVEL]
-        entries = await get_entries()
+        entries = await get_entries(call)
         if not entries:
             raise HomeAssistantError("No ScreenPilot devices configured")
 
@@ -245,7 +269,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
 
     async def handle_show_overlay(call: ServiceCall) -> None:
         """Handle show_overlay service."""
-        entries = await get_entries()
+        entries = await get_entries(call)
         if not entries:
             raise HomeAssistantError("No ScreenPilot devices configured")
 
@@ -256,6 +280,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
             "dismissible": call.data.get(ATTR_DISMISSIBLE),
             "width": call.data.get(ATTR_WIDTH),
             "height": call.data.get(ATTR_HEIGHT),
+            "fullscreen": call.data.get(ATTR_FULLSCREEN),
         }
 
         errors = []
@@ -272,7 +297,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
 
     async def handle_raise_alert(call: ServiceCall) -> None:
         """Handle raise_alert service."""
-        entries = await get_entries()
+        entries = await get_entries(call)
         if not entries:
             raise HomeAssistantError("No ScreenPilot devices configured")
         kwargs = {
@@ -294,7 +319,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
 
     async def handle_clear_alert(call: ServiceCall) -> None:
         """Handle clear_alert service."""
-        entries = await get_entries()
+        entries = await get_entries(call)
         if not entries:
             raise HomeAssistantError("No ScreenPilot devices configured")
         errors = []
@@ -309,7 +334,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
 
     async def handle_set_alert_source(call: ServiceCall) -> None:
         """Handle set_alert_source service."""
-        entries = await get_entries()
+        entries = await get_entries(call)
         if not entries:
             raise HomeAssistantError("No ScreenPilot devices configured")
         errors = []
@@ -329,21 +354,36 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         DOMAIN,
         SERVICE_LOAD_URL,
         handle_load_url,
-        schema=vol.Schema({vol.Required(ATTR_URL): cv.url}),
+        schema=vol.Schema(
+            {
+                vol.Required(ATTR_URL): cv.url,
+                vol.Optional(ATTR_DEVICE_ID): vol.All(cv.ensure_list, [cv.string]),
+            }
+        ),
     )
 
     hass.services.async_register(
         DOMAIN,
         SERVICE_EXECUTE_JS,
         handle_execute_js,
-        schema=vol.Schema({vol.Required(ATTR_SCRIPT): cv.string}),
+        schema=vol.Schema(
+            {
+                vol.Required(ATTR_SCRIPT): cv.string,
+                vol.Optional(ATTR_DEVICE_ID): vol.All(cv.ensure_list, [cv.string]),
+            }
+        ),
     )
 
     hass.services.async_register(
         DOMAIN,
         SERVICE_SEND_CEC,
         handle_send_cec,
-        schema=vol.Schema({vol.Required(ATTR_COMMAND): vol.In(CEC_COMMANDS)}),
+        schema=vol.Schema(
+            {
+                vol.Required(ATTR_COMMAND): vol.In(CEC_COMMANDS),
+                vol.Optional(ATTR_DEVICE_ID): vol.All(cv.ensure_list, [cv.string]),
+            }
+        ),
     )
 
     hass.services.async_register(
@@ -351,7 +391,10 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         SERVICE_CLEAR_DATA,
         handle_clear_data,
         schema=vol.Schema(
-            {vol.Optional(ATTR_DATA_TYPE, default="all"): vol.In(CLEAR_DATA_TYPES)}
+            {
+                vol.Optional(ATTR_DATA_TYPE, default="all"): vol.In(CLEAR_DATA_TYPES),
+                vol.Optional(ATTR_DEVICE_ID): vol.All(cv.ensure_list, [cv.string]),
+            }
         ),
     )
 
@@ -363,7 +406,8 @@ async def async_setup_services(hass: HomeAssistant) -> None:
             {
                 vol.Required(ATTR_LEVEL): vol.All(
                     vol.Coerce(int), vol.Range(min=25, max=500)
-                )
+                ),
+                vol.Optional(ATTR_DEVICE_ID): vol.All(cv.ensure_list, [cv.string]),
             }
         ),
     )
@@ -378,8 +422,12 @@ async def async_setup_services(hass: HomeAssistant) -> None:
                 vol.Optional(ATTR_HTML): cv.string,
                 vol.Optional(ATTR_TITLE): cv.string,
                 vol.Optional(ATTR_DISMISSIBLE): cv.boolean,
+                vol.Optional(ATTR_FULLSCREEN): cv.boolean,
                 vol.Optional(ATTR_WIDTH): cv.string,
                 vol.Optional(ATTR_HEIGHT): cv.string,
+                vol.Optional(ATTR_DEVICE_ID): vol.All(
+                    cv.ensure_list, [cv.string]
+                ),
             }
         ),
     )
@@ -395,6 +443,9 @@ async def async_setup_services(hass: HomeAssistant) -> None:
                 vol.Required(ATTR_MESSAGE): cv.string,
                 vol.Optional(ATTR_TTL): vol.All(vol.Coerce(int), vol.Range(min=0)),
                 vol.Optional(ATTR_DISMISSIBLE): cv.boolean,
+                vol.Optional(ATTR_DEVICE_ID): vol.All(
+                    cv.ensure_list, [cv.string]
+                ),
             }
         ),
     )
@@ -402,7 +453,14 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         DOMAIN,
         SERVICE_CLEAR_ALERT,
         handle_clear_alert,
-        schema=vol.Schema({vol.Required(ATTR_ID): cv.string}),
+        schema=vol.Schema(
+            {
+                vol.Required(ATTR_ID): cv.string,
+                vol.Optional(ATTR_DEVICE_ID): vol.All(
+                    cv.ensure_list, [cv.string]
+                ),
+            }
+        ),
     )
     hass.services.async_register(
         DOMAIN,
@@ -412,6 +470,9 @@ async def async_setup_services(hass: HomeAssistant) -> None:
             {
                 vol.Required(ATTR_SOURCE): vol.In(ALERT_SOURCES),
                 vol.Required(ATTR_ENABLED): cv.boolean,
+                vol.Optional(ATTR_DEVICE_ID): vol.All(
+                    cv.ensure_list, [cv.string]
+                ),
             }
         ),
     )
