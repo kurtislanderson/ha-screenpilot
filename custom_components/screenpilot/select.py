@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from homeassistant.components.select import SelectEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -38,7 +40,7 @@ class ScreenPilotHDMIInput(ScreenPilotEntity, SelectEntity):
 
     _attr_translation_key = "hdmi_input"
     _attr_icon = "mdi:video-input-hdmi"
-    _attr_options = list(HDMI_INPUTS.keys())
+    _attr_options: ClassVar[list[str]] = list(HDMI_INPUTS)
 
     def __init__(
         self,

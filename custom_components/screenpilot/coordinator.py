@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-import logging
 from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import ScreenPilotAPI, ScreenPilotConnectionError, ScreenPilotAuthError
+from .api import ScreenPilotAPI, ScreenPilotAuthError, ScreenPilotConnectionError
 from .const import UPDATE_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)

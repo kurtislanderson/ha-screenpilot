@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 
 import voluptuous as vol
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_TOKEN, Platform
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -22,8 +21,8 @@ from .const import (
     ATTR_DATA_TYPE,
     ATTR_DEVICE_ID,
     ATTR_DISMISSIBLE,
-    ATTR_FULLSCREEN,
     ATTR_ENABLED,
+    ATTR_FULLSCREEN,
     ATTR_HEIGHT,
     ATTR_HTML,
     ATTR_ID,
@@ -114,7 +113,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    global _SERVICES_REGISTERED  # noqa: PLW0603
+    global _SERVICES_REGISTERED
 
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
         hass.data[DOMAIN].pop(entry.entry_id)
@@ -140,7 +139,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_setup_services(hass: HomeAssistant) -> None:
     """Set up ScreenPilot services."""
-    global _SERVICES_REGISTERED  # noqa: PLW0603
+    global _SERVICES_REGISTERED
 
     if _SERVICES_REGISTERED:
         return
@@ -425,9 +424,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
                 vol.Optional(ATTR_FULLSCREEN): cv.boolean,
                 vol.Optional(ATTR_WIDTH): cv.string,
                 vol.Optional(ATTR_HEIGHT): cv.string,
-                vol.Optional(ATTR_DEVICE_ID): vol.All(
-                    cv.ensure_list, [cv.string]
-                ),
+                vol.Optional(ATTR_DEVICE_ID): vol.All(cv.ensure_list, [cv.string]),
             }
         ),
     )
@@ -443,9 +440,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
                 vol.Required(ATTR_MESSAGE): cv.string,
                 vol.Optional(ATTR_TTL): vol.All(vol.Coerce(int), vol.Range(min=0)),
                 vol.Optional(ATTR_DISMISSIBLE): cv.boolean,
-                vol.Optional(ATTR_DEVICE_ID): vol.All(
-                    cv.ensure_list, [cv.string]
-                ),
+                vol.Optional(ATTR_DEVICE_ID): vol.All(cv.ensure_list, [cv.string]),
             }
         ),
     )
@@ -456,9 +451,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         schema=vol.Schema(
             {
                 vol.Required(ATTR_ID): cv.string,
-                vol.Optional(ATTR_DEVICE_ID): vol.All(
-                    cv.ensure_list, [cv.string]
-                ),
+                vol.Optional(ATTR_DEVICE_ID): vol.All(cv.ensure_list, [cv.string]),
             }
         ),
     )
@@ -470,9 +463,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
             {
                 vol.Required(ATTR_SOURCE): vol.In(ALERT_SOURCES),
                 vol.Required(ATTR_ENABLED): cv.boolean,
-                vol.Optional(ATTR_DEVICE_ID): vol.All(
-                    cv.ensure_list, [cv.string]
-                ),
+                vol.Optional(ATTR_DEVICE_ID): vol.All(cv.ensure_list, [cv.string]),
             }
         ),
     )

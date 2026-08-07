@@ -44,7 +44,9 @@ jobs:
           python-version: "3.12"
 
       - name: Install Ruff
-        run: pip install ruff
+        # Pinned: ruff widens its default rule set between minor releases
+        # (0.16 enabled I/RUF/BLE by default and broke a green CI overnight).
+        run: pip install ruff==0.16.1
 
       - name: Run Ruff linter
         run: ruff check custom_components/screenpilot

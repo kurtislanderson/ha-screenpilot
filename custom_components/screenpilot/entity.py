@@ -8,7 +8,6 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .coordinator import ScreenPilotCoordinator, ScreenPilotData
 
-
 # Default data for when coordinator hasn't fetched yet
 _DEFAULT_DATA = ScreenPilotData()
 

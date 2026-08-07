@@ -320,6 +320,6 @@ class ScreenPilotAPI:
                 async with self._session.get(url, headers=self._headers) as response:
                     response.raise_for_status()
                     return await response.read()
-        except Exception as err:
+        except (TimeoutError, aiohttp.ClientError) as err:
             _LOGGER.error("Failed to get screenshot: %s", err)
             return None
