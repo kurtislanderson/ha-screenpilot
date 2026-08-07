@@ -36,3 +36,6 @@ PREPARE_FOR_NEW_REPO.md
 
 # Archive
 archive/
+
+# Local CodeGraph index
+.codegraph/

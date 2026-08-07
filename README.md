@@ -174,6 +174,24 @@ automation:
           height: "80vh"
 ```
 
+## Development
+
+Lint and test locally with the **same ruff version CI pins**, or your results won't match:
+
+```bash
+uvx ruff@0.16.1 check custom_components/screenpilot
+uvx ruff@0.16.1 format --check custom_components/screenpilot
+python3 tests/test_integration.py
+```
+
+The test script is stdlib-only — no Home Assistant install and no pytest required. It
+validates structure (manifest, constants, entity classes, service schemas) via AST parsing.
+
+The ruff version is pinned in `.github/workflows/validate.yml` on purpose: this repo has no
+`ruff.toml`, so ruff's built-in defaults are the lint config, and those defaults change
+between minor releases. Unpinned, a new ruff release turns CI red without a single source
+change. When you bump the pin, run the commands above and fix the fallout in the same commit.
+
 ## License
 
 MIT
