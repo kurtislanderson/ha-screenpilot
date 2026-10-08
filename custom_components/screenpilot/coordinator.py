@@ -64,7 +64,7 @@ class ScreenPilotData:
     browser_healthy: bool = False
     heartbeat_age: int = 999
     chrome_version: str = ""
-    # /api/health/ checks.storage (ScreenPilot PR #127): OK | WARN | CRITICAL |
+    # /api/health/ checks.storage (ScreenPilot >= 2.1.11): OK | WARN | CRITICAL |
     # UNKNOWN. "unknown" when the Pi predates the field.
     storage_status: str = "unknown"
     storage_stale: bool | None = None
