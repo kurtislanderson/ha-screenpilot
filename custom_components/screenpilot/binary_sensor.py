@@ -35,6 +35,17 @@ BINARY_SENSORS: tuple[ScreenPilotBinarySensorDescription, ...] = (
         value_fn=lambda data: not data.system_healthy,
     ),
     ScreenPilotBinarySensorDescription(
+        key="storage_problem",
+        translation_key="storage_problem",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        # Unknown (None) rather than a false all-clear when the verdict is missing.
+        value_fn=lambda data: (
+            data.storage_status in ("WARN", "CRITICAL")
+            if data.storage_status in ("OK", "WARN", "CRITICAL")
+            else None
+        ),
+    ),
+    ScreenPilotBinarySensorDescription(
         key="browser_connected",
         translation_key="browser_connected",
         device_class=BinarySensorDeviceClass.CONNECTIVITY,

@@ -64,6 +64,11 @@ class ScreenPilotData:
     browser_healthy: bool = False
     heartbeat_age: int = 999
     chrome_version: str = ""
+    # /api/health/ checks.storage (ScreenPilot >= 2.1.11): OK | WARN | CRITICAL |
+    # UNKNOWN. "unknown" when the Pi predates the field.
+    storage_status: str = "unknown"
+    storage_stale: bool | None = None
+    storage_age_seconds: int | None = None
 
     last_heartbeat: datetime | None = None
 
@@ -239,6 +244,10 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
                 if isinstance(info, dict) and info.get("state") == "failed"
             ]
 
+            storage = checks.get("storage", {}) if isinstance(checks, dict) else {}
+            if not isinstance(storage, dict):
+                storage = {}
+
             # Parse display
             display_current = (
                 display.get("current", {}) if isinstance(display, dict) else {}
@@ -295,6 +304,9 @@ class ScreenPilotCoordinator(DataUpdateCoordinator[ScreenPilotData]):
                 heartbeat_age=_heartbeat_age(kiosk_health.get("last_heartbeat")),
                 chrome_version=kiosk_health.get("browser_version", ""),
                 last_heartbeat=_parse_dt(kiosk_health.get("last_heartbeat")),
+                storage_status=storage.get("status") or "unknown",
+                storage_stale=storage.get("stale"),
+                storage_age_seconds=storage.get("age_seconds"),
                 # Network
                 ethernet_connected=bool(ethernet.get("connected")),
                 wifi_connected=bool(wifi.get("connected")),

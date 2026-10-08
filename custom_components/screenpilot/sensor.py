@@ -114,6 +114,16 @@ SENSORS: tuple[ScreenPilotSensorDescription, ...] = (
         value_fn=lambda data: data.health_status,
     ),
     ScreenPilotSensorDescription(
+        key="storage_health",
+        translation_key="storage_health",
+        icon="mdi:harddisk",
+        value_fn=lambda data: data.storage_status,
+        attr_fn=lambda data: {
+            "stale": data.storage_stale,
+            "age_seconds": data.storage_age_seconds,
+        },
+    ),
+    ScreenPilotSensorDescription(
         key="heartbeat_age",
         translation_key="heartbeat_age",
         native_unit_of_measurement=UnitOfTime.SECONDS,
