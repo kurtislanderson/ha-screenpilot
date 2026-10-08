@@ -26,6 +26,9 @@
       "system_healthy": {
         "name": "System Problem"
       },
+      "storage_problem": {
+        "name": "Storage Problem"
+      },
       "browser_connected": {
         "name": "Browser Connected"
       },
@@ -87,6 +90,9 @@
       },
       "health_status": {
         "name": "Health Status"
+      },
+      "storage_health": {
+        "name": "Storage Health"
       },
       "heartbeat_age": {
         "name": "Heartbeat Age"
