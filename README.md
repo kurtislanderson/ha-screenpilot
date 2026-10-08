@@ -57,7 +57,8 @@ You will need:
 - Storage Health — `OK` / `WARN` / `CRITICAL` / `UNKNOWN` from `/api/health/`
   `checks.storage` (ScreenPilot ≥ 2.1.11), attributes `stale` and `age_seconds`.
   Covers NVMe SMART wear/spare/media errors, SD-card and NVMe kernel I/O errors,
-  ext4 errors, read-only remounts, temperature and under-voltage. **Storage
+  ext4 errors, read-only remounts, low free space (≥ 2.1.13), temperature and
+  under-voltage. **Storage
   Problem** (binary, problem class) is on for WARN or CRITICAL and unknown when the
   Pi predates the field. The reasons and drive details are on ScreenPilot's
   token-only `/api/system/storage/` and the console System page, not in HA.
