@@ -36,7 +36,7 @@ You will need:
 ## Entities
 
 ### Binary Sensors
-- System Problem, Browser Connected, Browser Problem
+- System Problem, Storage Problem, Browser Connected, Browser Problem
 - Services Problem, Kiosk Service, Web Console Service, CEC / HDMI Service
 - Network Connected
 - Overlay Visible
@@ -54,6 +54,28 @@ You will need:
   display stack (`wayland` = v2, `x11` = v1). Also surfaced as the device
   `sw_version`, e.g. `2.0.0 (wayland)`. Shows `unknown` for ScreenPilot builds
   predating the `/api/system/info/` version fields.
+- Storage Health — `OK` / `WARN` / `CRITICAL` / `UNKNOWN` from `/api/health/`
+  `checks.storage` (ScreenPilot ≥ 2.1.11), attributes `stale` and `age_seconds`.
+  Covers NVMe SMART wear/spare/media errors, SD-card and NVMe kernel I/O errors,
+  ext4 errors, read-only remounts, temperature and under-voltage. **Storage
+  Problem** (binary, problem class) is on for WARN or CRITICAL and unknown when the
+  Pi predates the field. The reasons and drive details are on ScreenPilot's
+  token-only `/api/system/storage/` and the console System page, not in HA.
+
+  Example alert:
+
+  ```yaml
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.cfil_signage01_storage_problem
+      to: "on"
+  actions:
+    - action: notify.notify
+      data:
+        message: >-
+          {{ trigger.to_state.name }}: storage
+          {{ states('sensor.cfil_signage01_storage_health') }}
+  ```
 
 ### Controls
 - **Switch**: TV Power
